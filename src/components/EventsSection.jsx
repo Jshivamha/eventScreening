@@ -1,19 +1,19 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEventContext } from '../context/EventContext';
 import UniversalEventCard from './UniversalEventCard';
 
 const EventsSection = () => {
   const navigate = useNavigate();
-  const { events } = useEventContext();
+  const { getHomePageEvents } = useEventContext();
 
   const handleViewMoreEvents = () => {
     navigate('/events');
   };
 
-  // Get first 3 events for homepage display
-  const featuredEvents = events.slice(0, 3);
+  // Get dynamic events for homepage display
+  const featuredEvents = getHomePageEvents();
 
   return (
     <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
@@ -35,11 +35,31 @@ const EventsSection = () => {
         </motion.div>
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
-          {featuredEvents.map((event, index) => (
-            <UniversalEventCard key={event.id} event={event} index={index} variant="home" />
-          ))}
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12"
+          layout
+        >
+          <AnimatePresence mode="popLayout">
+            {featuredEvents.map((event, index) => (
+              <motion.div
+                key={event.id}
+                layout
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: index * 0.1,
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15
+                }}
+              >
+                <UniversalEventCard event={event} index={index} variant="home" />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {/* View More Button */}
         <motion.div

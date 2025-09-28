@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEventContext } from '../context/EventContext';
 import { Calendar, MapPin, Clock, Users, Ticket } from 'lucide-react';
+import { formatEventDate } from '../data/dynamicEventsData';
 import EventDetailsModal from './EventDetailsModal';
 
 const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
@@ -92,7 +93,9 @@ const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
           <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Calendar size={14} className="sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm font-medium">{event.date}</span>
+              <span className="text-xs sm:text-sm font-medium">
+                {event.dayOffset !== undefined ? formatEventDate(event.date) : event.date}
+              </span>
             </div>
           </div>
         )}
@@ -112,7 +115,9 @@ const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
         <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
           <div className="flex items-center text-gray-400 text-xs sm:text-sm">
             <Calendar size={14} className="mr-2 text-yellow-400 sm:w-4 sm:h-4" />
-            <span className="truncate">{event.date}</span>
+            <span className="truncate">
+              {event.dayOffset !== undefined ? formatEventDate(event.date) : event.date}
+            </span>
           </div>
           <div className="flex items-center text-gray-400 text-xs sm:text-sm">
             <Clock size={14} className="mr-2 text-yellow-400 sm:w-4 sm:h-4" />
