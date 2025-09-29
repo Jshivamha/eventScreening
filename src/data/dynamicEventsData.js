@@ -44,7 +44,7 @@ export const movieEventMappings = [
     title: "Special Event: Bollywood Night",
     type: "Special Event",
     time: "8:30 PM",
-    location: "India Gate, Delhi",
+    location: "DLF Avenue Saket, Delhi",
     description: "Celebrate Bollywood with a special screening of classic Hindi films. Enjoy traditional snacks and immerse yourself in the magic of Indian cinema.",
     image: "https://sunsetcinemaclub.in/img/admin/venues/wuR5UuK2NU_IMG20250608142231 (1).jpg",
     price: "799",
