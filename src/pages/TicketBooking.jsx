@@ -1,8 +1,148 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Star, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Star, ChevronRight, AlertCircle, CheckCircle, Loader2, ChevronDown, Check } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
+
+// Modern state management with useReducer
+const initialBookingState = {
+  ticketCount: 1,
+  seatPreference: '',
+  seatPremiumSurcharge: 0,
+  coupon: {
+    code: '',
+    discount: 0,
+    message: '',
+    isValid: false,
+    isApplying: false
+  },
+  validation: {
+    errors: {},
+    isValid: true
+  },
+  ui: {
+    isProcessing: false,
+    showConfirmation: false
+  }
+};
+
+// Seat preference options with pricing
+const SEAT_PREFERENCES = [
+  { id: '', label: 'Select your preference', premium: false, surcharge: 0 },
+  { id: 'A', label: 'A Row (Premium Corner)', premium: true, surcharge: 400 },
+  { id: 'B', label: 'B Row (Premium Corner)', premium: true, surcharge: 400 },
+  { id: 'C', label: 'C Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'D', label: 'D Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'E', label: 'E Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'F', label: 'F Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'G', label: 'G Row (Premium Corner)', premium: true, surcharge: 400 },
+  { id: 'H', label: 'H Row (Premium Corner)', premium: true, surcharge: 400 },
+  { id: 'I', label: 'I Row (VIP Premium)', premium: true, surcharge: 600 },
+  { id: 'J', label: 'J Row (VIP Premium)', premium: true, surcharge: 600 },
+];
+
+const bookingReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_TICKET_COUNT':
+      const newCount = Math.max(1, Math.min(2, action.payload));
+      const currentPreference = SEAT_PREFERENCES.find(p => p.id === state.seatPreference);
+      const newSurcharge = currentPreference ? currentPreference.surcharge * newCount : 0;
+      return {
+        ...state,
+        ticketCount: newCount,
+        seatPremiumSurcharge: newSurcharge
+      };
+    
+    case 'SET_SEAT_PREFERENCE':
+      const selectedPreference = SEAT_PREFERENCES.find(p => p.id === action.payload);
+      const surcharge = selectedPreference ? selectedPreference.surcharge * state.ticketCount : 0;
+      return {
+        ...state,
+        seatPreference: action.payload,
+        seatPremiumSurcharge: surcharge
+      };
+    
+    case 'SET_COUPON_CODE':
+      return {
+        ...state,
+        coupon: { ...state.coupon, code: action.payload, message: '' }
+      };
+    
+    case 'APPLY_COUPON_START':
+      return {
+        ...state,
+        coupon: { ...state.coupon, isApplying: true, message: '' }
+      };
+    
+    case 'APPLY_COUPON_SUCCESS':
+      return {
+        ...state,
+        coupon: {
+          ...state.coupon,
+          discount: action.payload.discount,
+          message: action.payload.message,
+          isValid: true,
+          isApplying: false
+        }
+      };
+    
+    case 'APPLY_COUPON_ERROR':
+      return {
+        ...state,
+        coupon: {
+          ...state.coupon,
+          discount: 0,
+          message: action.payload,
+          isValid: false,
+          isApplying: false
+        }
+      };
+    
+    case 'SET_VALIDATION_ERROR':
+      return {
+        ...state,
+        validation: {
+          errors: { ...state.validation.errors, [action.field]: action.message },
+          isValid: false
+        }
+      };
+    
+    case 'CLEAR_VALIDATION_ERROR':
+      const newErrors = { ...state.validation.errors };
+      delete newErrors[action.field];
+      return {
+        ...state,
+        validation: {
+          errors: newErrors,
+          isValid: Object.keys(newErrors).length === 0
+        }
+      };
+    
+    case 'SET_PROCESSING':
+      return {
+        ...state,
+        ui: { ...state.ui, isProcessing: action.payload }
+      };
+    
+    case 'SHOW_CONFIRMATION':
+      return {
+        ...state,
+        ui: { ...state.ui, showConfirmation: action.payload }
+      };
+    
+    default:
+      return state;
+  }
+};
+
+// Coupon validation constants
+const VALID_COUPONS = {
+  'WELCOME10': { type: 'percentage', value: 10, description: '10% off on your booking' },
+  'SAVE20': { type: 'percentage', value: 20, description: '20% off on your booking' },
+  'FLAT100': { type: 'fixed', value: 100, description: '₹100 off on your booking' },
+  'NEWUSER': { type: 'percentage', value: 15, description: '15% off for new users' },
+  'MOVIE50': { type: 'fixed', value: 50, description: '₹50 off on movie tickets' }
+};
 
 const TicketBooking = () => {
   const { eventId } = useParams();
@@ -12,135 +152,257 @@ const TicketBooking = () => {
   const [event, setEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [ticketCount, setTicketCount] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [couponCode, setCouponCode] = useState('');
-  const [discount, setDiscount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState('');
+  const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Close dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.dropdown-container')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && isDropdownOpen) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDropdownOpen]);
 
   console.log('TicketBooking component rendered with eventId:', eventId);
   console.log('Location state:', location.state);
 
-  useEffect(() => {
-    console.log('TicketBooking useEffect - eventId:', eventId);
-    
-    // First try to get event from location state
-    let foundEvent = location.state?.eventData;
-    
-    // If not in state, try to get from context
-    if (!foundEvent) {
-      foundEvent = selectedEvent;
-    }
-    
-    // If still not found, get from context by ID
-    if (!foundEvent) {
-      foundEvent = getEventById(eventId);
-    }
-    
-    console.log('Found event:', foundEvent);
-    
-    if (foundEvent) {
+  // Memoized event loading logic
+  const loadEvent = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // First try to get event from location state
+      let foundEvent = location.state?.eventData;
+      
+      // If not in state, try to get from context
+      if (!foundEvent) {
+        foundEvent = selectedEvent;
+      }
+      
+      // If still not found, get from context by ID
+      if (!foundEvent && eventId) {
+        foundEvent = getEventById(eventId);
+      }
+      
+      if (!foundEvent) {
+        dispatch({ type: 'SET_VALIDATION_ERROR', field: 'event', message: 'Event not found' });
+        return;
+      }
+      
       setEvent(foundEvent);
-      // Set default date and time
       setSelectedDate(foundEvent.date);
       setSelectedTime(foundEvent.time);
+      
+      
+      dispatch({ type: 'CLEAR_VALIDATION_ERROR', field: 'event' });
+    } catch (error) {
+      console.error('Error loading event:', error);
+      dispatch({ type: 'SET_VALIDATION_ERROR', field: 'event', message: 'Failed to load event details' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [eventId, location.state, selectedEvent, getEventById]);
 
-  // Recalculate discount when ticket count changes
   useEffect(() => {
-    if (couponCode && event) {
-      validateCoupon(couponCode);
-    }
-  }, [ticketCount, couponCode, event]);
+    loadEvent();
+  }, [loadEvent]);
 
-  // Coupon validation function
-  const validateCoupon = (code) => {
-    const validCoupons = {
-      'WELCOME10': { type: 'percentage', value: 10 },
-      'SAVE20': { type: 'percentage', value: 20 },
-      'FLAT100': { type: 'fixed', value: 100 },
-      'NEWUSER': { type: 'percentage', value: 15 },
-      'MOVIE50': { type: 'fixed', value: 50 }
-    };
-
-    const coupon = validCoupons[code.toUpperCase()];
+  // Memoized coupon validation function
+  const validateCoupon = useCallback(async (code) => {
+    if (!code || !event) return false;
+    
+    dispatch({ type: 'APPLY_COUPON_START' });
+    
+    // Simulate API call delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const coupon = VALID_COUPONS[code.toUpperCase()];
     if (coupon) {
       let discountAmount = 0;
-      const subtotal = event.price * ticketCount;
+      const subtotal = event.price * bookingState.ticketCount;
       
       if (coupon.type === 'percentage') {
-        discountAmount = (subtotal * coupon.value) / 100;
+        discountAmount = Math.round((subtotal * coupon.value) / 100);
       } else {
         discountAmount = Math.min(coupon.value, subtotal);
       }
       
-      setDiscount(discountAmount);
-      setCouponMessage(`Coupon applied! You saved ₹${discountAmount}`);
+      dispatch({ 
+        type: 'APPLY_COUPON_SUCCESS', 
+        payload: { 
+          discount: discountAmount, 
+          message: `${coupon.description} - You saved ₹${discountAmount}!` 
+        }
+      });
       return true;
     } else {
-      setDiscount(0);
-      setCouponMessage('Invalid coupon code');
+      dispatch({ 
+        type: 'APPLY_COUPON_ERROR', 
+        payload: 'Invalid coupon code. Please check and try again.' 
+      });
       return false;
     }
-  };
+  }, [event, bookingState.ticketCount]);
 
-  const handleCouponSubmit = () => {
-    if (couponCode.trim()) {
-      validateCoupon(couponCode.trim());
+  // Auto-revalidate coupon when ticket count changes
+  useEffect(() => {
+    if (bookingState.coupon.code && bookingState.coupon.isValid && event) {
+      validateCoupon(bookingState.coupon.code);
     }
-  };
+  }, [bookingState.ticketCount, validateCoupon, bookingState.coupon.code, bookingState.coupon.isValid, event]);
 
-  const handleProceed = () => {
-    // Enforce max 2 tickets per order
-    if (ticketCount > 2) {
-      alert('Maximum 2 tickets can be purchased per order.');
+  // Memoized handlers
+  const handleCouponSubmit = useCallback(() => {
+    const code = bookingState.coupon.code.trim();
+    if (code) {
+      validateCoupon(code);
+    } else {
+      dispatch({ type: 'APPLY_COUPON_ERROR', payload: 'Please enter a coupon code' });
+    }
+  }, [bookingState.coupon.code, validateCoupon]);
+
+
+  const handleTicketCountChange = useCallback((increment) => {
+    const newCount = bookingState.ticketCount + increment;
+    dispatch({ type: 'SET_TICKET_COUNT', payload: newCount });
+  }, [bookingState.ticketCount]);
+
+  const handleProceed = useCallback(async () => {
+    if (!event) return;
+    
+    // Clear previous validation errors
+    dispatch({ type: 'CLEAR_VALIDATION_ERROR', field: 'general' });
+    
+    // Validation
+    if (bookingState.ticketCount > 2) {
+      dispatch({ type: 'SET_VALIDATION_ERROR', field: 'general', message: 'Maximum 2 tickets can be purchased per order.' });
       return;
     }
-    // Navigate to payment page or show booking confirmation
-    const subtotal = event.price * ticketCount;
-    const finalPrice = subtotal - discount;
     
-    console.log('Proceeding with booking:', {
-      event: event?.title,
-      date: selectedDate,
-      time: selectedTime,
-      tickets: ticketCount,
-      subtotal: subtotal,
-      discount: discount,
-      finalPrice: finalPrice
-    });
+    if (!bookingState.seatPreference) {
+      dispatch({ type: 'SET_VALIDATION_ERROR', field: 'general', message: 'Please select your seat preference.' });
+      return;
+    }
     
-    // Navigate to frontend payment preview
-    navigate('/payment', {
-      state: {
+    
+    
+    try {
+      dispatch({ type: 'SET_PROCESSING', payload: true });
+      
+      // Calculate final pricing
+      const subtotal = event.price * bookingState.ticketCount;
+      const finalPrice = subtotal + bookingState.seatPremiumSurcharge - bookingState.coupon.discount;
+      
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const bookingData = {
         eventTitle: event.title,
         eventId: event.id,
         subtotal,
-        discount,
+        discount: bookingState.coupon.discount,
         finalPrice,
         date: selectedDate,
         time: selectedTime,
-        tickets: ticketCount,
-      }
-    });
-  };
+        tickets: bookingState.ticketCount,
+        seatPreference: bookingState.seatPreference,
+        premiumSurcharge: bookingState.seatPremiumSurcharge,
+        couponCode: bookingState.coupon.code
+      };
+      
+      console.log('Proceeding with booking:', bookingData);
+      
+      // Navigate to payment page
+      navigate('/payment', { state: bookingData });
+      
+    } catch (error) {
+      console.error('Error processing booking:', error);
+      dispatch({ type: 'SET_VALIDATION_ERROR', field: 'general', message: 'Something went wrong. Please try again.' });
+    } finally {
+      dispatch({ type: 'SET_PROCESSING', payload: false });
+    }
+  }, [event, bookingState, selectedDate, selectedTime, navigate]);
+
+  // Memoized calculations
+  const pricing = useMemo(() => {
+    if (!event) return { subtotal: 0, finalPrice: 0 };
+    
+    const subtotal = event.price * bookingState.ticketCount;
+    const finalPrice = subtotal + bookingState.seatPremiumSurcharge - bookingState.coupon.discount;
+    
+    return { subtotal, finalPrice: Math.max(0, finalPrice) };
+  }, [event, bookingState.ticketCount, bookingState.seatPremiumSurcharge, bookingState.coupon.discount]);
+
+  // Loading skeleton component
+  const LoadingSkeleton = () => (
+    <div className="min-h-screen bg-black text-white">
+      <div className="bg-gray-900 border-b border-gray-800 h-16 animate-pulse" />
+      <div className="bg-gray-800 border-b border-gray-700 h-20 animate-pulse" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="bg-gray-900 rounded-2xl p-6 animate-pulse">
+              <div className="h-64 bg-gray-800 rounded-xl mb-6" />
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-800 rounded w-3/4" />
+                <div className="h-4 bg-gray-800 rounded w-1/2" />
+                <div className="h-4 bg-gray-800 rounded w-2/3" />
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-1">
+            <div className="bg-gray-900 rounded-2xl p-6 animate-pulse">
+              <div className="h-6 bg-gray-800 rounded w-1/2 mb-6" />
+              <div className="space-y-4">
+                <div className="h-16 bg-gray-800 rounded-xl" />
+                <div className="h-16 bg-gray-800 rounded-xl" />
+                <div className="h-12 bg-gray-800 rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Error state component
+  const ErrorState = ({ error }) => (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">Oops! Something went wrong</h2>
+        <p className="text-gray-400 mb-6">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
-  if (!event) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Event not found</div>
-      </div>
-    );
+  if (!event || bookingState.validation.errors.event) {
+    return <ErrorState error={bookingState.validation.errors.event || "Event not found"} />;
   }
 
   return (
@@ -310,22 +572,191 @@ const TicketBooking = () => {
               <div className="mb-4 sm:mb-6">
                 <label className="block text-gray-300 mb-2 sm:mb-3 font-medium text-sm sm:text-base">Number of Tickets</label>
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <button
-                    onClick={() => setTicketCount(Math.max(1, ticketCount - 1))}
-                    className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-300 hover:border-gray-600 min-h-[44px]"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleTicketCountChange(-1)}
+                    disabled={bookingState.ticketCount <= 1}
+                    aria-label="Decrease ticket count"
+                    aria-describedby="ticket-count-display"
+                    className={`w-10 h-10 rounded-full border flex items-center justify-center min-h-[44px] transition-all ${
+                      bookingState.ticketCount <= 1 
+                        ? 'border-gray-800 text-gray-600 cursor-not-allowed' 
+                        : 'border-gray-700 text-gray-300 hover:border-yellow-400 hover:text-yellow-400'
+                    }`}
                   >
                     -
-                  </button>
-                  <span className="text-white font-semibold text-base sm:text-lg">{ticketCount}</span>
-                  <button
-                    onClick={() => setTicketCount(Math.min(2, ticketCount + 1))}
-                    disabled={ticketCount >= 2}
-                    className={`w-10 h-10 rounded-full border flex items-center justify-center min-h-[44px] ${ticketCount >= 2 ? 'border-gray-800 text-gray-600 cursor-not-allowed' : 'border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                  </motion.button>
+                  <motion.span 
+                    key={bookingState.ticketCount}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    id="ticket-count-display"
+                    aria-live="polite"
+                    className="text-white font-semibold text-base sm:text-lg min-w-[2rem] text-center"
+                  >
+                    {bookingState.ticketCount}
+                  </motion.span>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleTicketCountChange(1)}
+                    disabled={bookingState.ticketCount >= 2}
+                    aria-label="Increase ticket count"
+                    aria-describedby="ticket-count-display"
+                    className={`w-10 h-10 rounded-full border flex items-center justify-center min-h-[44px] transition-all ${
+                      bookingState.ticketCount >= 2 
+                        ? 'border-gray-800 text-gray-600 cursor-not-allowed' 
+                        : 'border-gray-700 text-gray-300 hover:border-yellow-400 hover:text-yellow-400'
+                    }`}
                   >
                     +
-                  </button>
+                  </motion.button>
                 </div>
                 <p className="mt-2 text-xs sm:text-sm text-gray-400">Max 2 tickets per order.</p>
+              </div>
+
+              {/* Seat Preference Section */}
+              <div className="mb-4 sm:mb-6">
+                <label className="block text-gray-300 mb-2 sm:mb-3 font-medium text-sm sm:text-base">Select Your Preference</label>
+                
+                {/* Modern Custom Dropdown */}
+                <div className="relative dropdown-container">
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full bg-gray-800/50 border border-gray-600 text-white px-3 sm:px-4 py-3 rounded-lg hover:border-yellow-400 focus:outline-none focus:border-yellow-400 focus:bg-gray-800 transition-all duration-300 min-h-[44px] text-sm sm:text-base flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      {bookingState.seatPreference ? (
+                        <>
+                          <div className={`w-3 h-3 rounded-full ${
+                            (() => {
+                              const pref = SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference);
+                              if (!pref?.premium) return 'bg-emerald-400';
+                              return pref.surcharge >= 600 ? 'bg-purple-400' : 'bg-amber-400';
+                            })()
+                          }`} />
+                          <span className="text-white">
+                            {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.label}
+                          </span>
+                          {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.premium && (
+                            <span className="text-amber-400 text-xs bg-amber-400/10 px-2 py-1 rounded">
+                              +₹{SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.surcharge}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-gray-400">Select your preference</span>
+                      )}
+                    </div>
+                    <motion.div
+                      animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    </motion.div>
+                  </motion.button>
+
+                  {/* Dropdown Options */}
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-50 overflow-hidden max-h-60 sm:max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500"
+                        style={{
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#4B5563 #1F2937',
+                          WebkitScrollbarWidth: 'thin'
+                        }}
+                      >
+                        {SEAT_PREFERENCES.map((preference, index) => (
+                          <motion.button
+                            key={preference.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            onClick={() => {
+                              dispatch({ type: 'SET_SEAT_PREFERENCE', payload: preference.id });
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center justify-between group ${
+                              bookingState.seatPreference === preference.id ? 'bg-gray-700/50' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-3 h-3 rounded-full transition-all ${
+                                preference.id === '' 
+                                  ? 'bg-gray-600' 
+                                  : !preference.premium 
+                                    ? 'bg-emerald-400 group-hover:scale-110'
+                                    : preference.surcharge >= 600
+                                      ? 'bg-purple-400 group-hover:scale-110'
+                                      : 'bg-amber-400 group-hover:scale-110'
+                              }`} />
+                              <div>
+                                <span className={`text-sm ${
+                                  preference.id === '' ? 'text-gray-400' : 'text-white'
+                                }`}>
+                                  {preference.label}
+                                </span>
+                                {preference.premium && (
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className={`text-xs px-2 py-1 rounded ${
+                                      preference.surcharge >= 600 
+                                        ? 'text-purple-400 bg-purple-400/10' 
+                                        : 'text-amber-400 bg-amber-400/10'
+                                    }`}>
+                                      +₹{preference.surcharge}
+                                    </span>
+                                    <Star className={`w-3 h-3 ${
+                                      preference.surcharge >= 600 ? 'text-purple-400' : 'text-amber-400'
+                                    }`} />
+                                    {preference.surcharge >= 600 && (
+                                      <span className="text-purple-300 text-xs font-semibold">VIP</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {bookingState.seatPreference === preference.id && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="text-yellow-400"
+                              >
+                                <Check className="w-4 h-4" />
+                              </motion.div>
+                            )}
+                          </motion.button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                
+                {/* Show premium surcharge info */}
+                <AnimatePresence>
+                  {bookingState.seatPremiumSurcharge > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                        <span className="text-amber-400 text-sm">
+                          Premium seat selected: +₹{bookingState.seatPremiumSurcharge} total
+                        </span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Coupon Code Section */}
@@ -334,60 +765,162 @@ const TicketBooking = () => {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
+                    value={bookingState.coupon.code}
+                    onChange={(e) => dispatch({ type: 'SET_COUPON_CODE', payload: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && handleCouponSubmit()}
                     placeholder="Enter coupon code"
-                    className="flex-1 bg-gray-800/50 border border-gray-600 text-white px-3 sm:px-4 py-3 rounded-lg focus:outline-none focus:border-yellow-400 focus:bg-gray-800 transition-all duration-300 placeholder-gray-400 min-h-[44px] text-sm sm:text-base"
+                    disabled={bookingState.coupon.isApplying}
+                    aria-label="Coupon code"
+                    aria-describedby="coupon-message"
+                    aria-invalid={bookingState.coupon.message && !bookingState.coupon.isValid}
+                    className="flex-1 bg-gray-800/50 border border-gray-600 text-white px-3 sm:px-4 py-3 rounded-lg focus:outline-none focus:border-yellow-400 focus:bg-gray-800 transition-all duration-300 placeholder-gray-400 min-h-[44px] text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   />
-                  <button
+                  <motion.button
+                    whileHover={{ scale: bookingState.coupon.isApplying ? 1 : 1.02 }}
+                    whileTap={{ scale: bookingState.coupon.isApplying ? 1 : 0.98 }}
                     onClick={handleCouponSubmit}
-                    className="bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors min-h-[44px] text-sm sm:text-base"
+                    disabled={bookingState.coupon.isApplying || !bookingState.coupon.code.trim()}
+                    aria-label={bookingState.coupon.isApplying ? 'Applying coupon' : 'Apply coupon code'}
+                    className="bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors min-h-[44px] text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    Apply
-                  </button>
+                    {bookingState.coupon.isApplying && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {bookingState.coupon.isApplying ? 'Applying...' : 'Apply'}
+                  </motion.button>
                 </div>
-                {couponMessage && (
-                  <div className={`mt-2 text-sm ${couponMessage.includes('applied') ? 'text-green-400' : 'text-red-400'}`}>
-                    {couponMessage}
-                  </div>
-                )}
+                
+                <AnimatePresence>
+                  {bookingState.coupon.message && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      id="coupon-message"
+                      role="status"
+                      aria-live="polite"
+                      className={`mt-2 text-sm flex items-center gap-2 ${
+                        bookingState.coupon.isValid ? 'text-green-400' : 'text-red-400'
+                      }`}
+                    >
+                      {bookingState.coupon.isValid ? (
+                        <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      )}
+                      {bookingState.coupon.message}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Price Summary */}
-              <div className="bg-gray-800 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+              <motion.div 
+                layout
+                id="booking-summary"
+                aria-label="Booking price summary"
+                className="bg-gray-800 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-700"
+              >
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-300 text-sm sm:text-base">Price per ticket</span>
                   <span className="text-white font-semibold text-sm sm:text-base">₹{event.price}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-300 text-sm sm:text-base">Quantity</span>
-                  <span className="text-white font-semibold text-sm sm:text-base">{ticketCount}</span>
+                  <motion.span 
+                    key={bookingState.ticketCount}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-white font-semibold text-sm sm:text-base"
+                  >
+                    {bookingState.ticketCount}
+                  </motion.span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-300 text-sm sm:text-base">Subtotal</span>
-                  <span className="text-white font-semibold text-sm sm:text-base">₹{event.price * ticketCount}</span>
+                  <motion.span 
+                    key={event.price * bookingState.ticketCount}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-white font-semibold text-sm sm:text-base"
+                  >
+                    ₹{event.price * bookingState.ticketCount}
+                  </motion.span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-green-400 text-sm sm:text-base">Discount</span>
-                    <span className="text-green-400 font-semibold text-sm sm:text-base">-₹{discount}</span>
-                  </div>
-                )}
+                
+                <AnimatePresence>
+                  {bookingState.seatPremiumSurcharge > 0 && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex justify-between items-center mb-2"
+                    >
+                      <span className="text-amber-300 text-sm sm:text-base">Premium Seats</span>
+                      <span className="text-amber-300 font-semibold text-sm sm:text-base">+₹{bookingState.seatPremiumSurcharge}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <AnimatePresence>
+                  {bookingState.coupon.discount > 0 && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex justify-between items-center mb-2"
+                    >
+                      <span className="text-green-400 text-sm sm:text-base">Discount</span>
+                      <span className="text-green-400 font-semibold text-sm sm:text-base">-₹{bookingState.coupon.discount}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
                 <div className="border-t border-gray-700 pt-2">
                   <div className="flex justify-between items-center">
                     <span className="text-white font-bold text-base sm:text-lg">Total</span>
-                    <span className="text-yellow-400 font-bold text-lg sm:text-xl">₹{(event.price * ticketCount) - discount}</span>
+                    <motion.span 
+                      key={pricing.finalPrice}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-yellow-400 font-bold text-lg sm:text-xl"
+                    >
+                      ₹{pricing.finalPrice}
+                    </motion.span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
+
+              {/* General Validation Error */}
+              <AnimatePresence>
+                {bookingState.validation.errors.general && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                    <span className="text-red-400 text-sm">{bookingState.validation.errors.general}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Proceed Button */}
-              <button
+              <motion.button
+                whileHover={{ scale: bookingState.ui.isProcessing ? 1 : 1.02 }}
+                whileTap={{ scale: bookingState.ui.isProcessing ? 1 : 0.98 }}
                 onClick={handleProceed}
-                className="w-full bg-yellow-400 text-black py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors min-h-[44px]"
+                disabled={bookingState.ui.isProcessing || !bookingState.validation.isValid}
+                aria-label={bookingState.ui.isProcessing ? 'Processing booking' : 'Proceed to payment'}
+                aria-describedby="booking-summary"
+                className={`w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg min-h-[44px] transition-all flex items-center justify-center gap-2 ${
+                  bookingState.ui.isProcessing || !bookingState.validation.isValid
+                    ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                    : 'bg-yellow-400 text-black hover:bg-yellow-300'
+                }`}
               >
-                Proceed
-              </button>
+                {bookingState.ui.isProcessing && <Loader2 className="w-5 h-5 animate-spin" />}
+                {bookingState.ui.isProcessing ? 'Processing...' : 'Proceed to Payment'}
+              </motion.button>
 
               {/* Additional Info */}
               <div className="mt-4 sm:mt-6 text-center">
