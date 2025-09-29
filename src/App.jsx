@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { EventProvider } from './context/EventContext';
 import { LoadingProvider, useLoading } from './context/LoadingContext';
 import LoadingScreen from './components/LoadingScreen';
+import Analytics from './components/Analytics';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Events from './pages/Events';
@@ -22,6 +23,7 @@ const AppContent = () => {
 
   return (
     <>
+      <Analytics />
       <LoadingScreen isLoading={isLoading} progress={progress} />
       <div className={isLoading ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}>
         <EventProvider>

@@ -1,8 +1,27 @@
 import React from 'react';
+import SEO from '../components/SEO';
+import { generateBreadcrumbStructuredData, generateOrganizationStructuredData } from '../utils/structuredData';
 
 const About = () => {
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' }
+  ];
+
+  const structuredData = [
+    generateBreadcrumbStructuredData(breadcrumbs),
+    generateOrganizationStructuredData()
+  ];
+
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="About EventWeb - Premium Event Management Platform"
+        description="Learn about EventWeb, your premier destination for premium event booking, movie screenings, and venue management. Discover our mission to connect communities through exceptional experiences."
+        keywords="about eventweb, event management company, premium events, movie screening platform, venue booking service"
+        url={`${window.location.origin}/about`}
+        structuredData={structuredData}
+      />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">

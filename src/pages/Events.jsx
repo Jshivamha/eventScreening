@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 import EventsHero from '../components/EventsHero';
 import FilterBar from '../components/FilterBar';
 import EventsGrid from '../components/EventsGrid';
 import { useEventContext } from '../context/EventContext';
 import { assignDynamicDates } from '../utils/dateUtils';
 import { eventsData } from '../data/eventsData'; // Import raw data as a fallback
+import { generateEventStructuredData, generateBreadcrumbStructuredData } from '../utils/structuredData';
 
 const Events = () => {
   const { events: contextEvents } = useEventContext();
@@ -75,8 +77,25 @@ const Events = () => {
     }, 500);
   };
 
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Events', path: '/events' }
+  ];
+
+  const structuredData = [
+    generateBreadcrumbStructuredData(breadcrumbs),
+    ...filteredEvents.slice(0, 5).map(event => generateEventStructuredData(event))
+  ];
+
   return (
     <div className="min-h-screen bg-black">
+      <SEO
+        title="Events - Premium Movie Screenings & Entertainment | EventWeb"
+        description="Discover and book premium events, movie screenings, and entertainment experiences. Browse upcoming events in Mumbai and book your tickets for exclusive screenings and live events."
+        keywords="events, movie screenings, entertainment, premium events, cinema booking, live events, Mumbai events, event tickets"
+        url={`${window.location.origin}/events`}
+        structuredData={structuredData}
+      />
       {/* Hero Section */}
       <EventsHero />
       

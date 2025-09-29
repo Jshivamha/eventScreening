@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import SEO from '../components/SEO';
 import VenuesHero from '../components/VenuesHero';
 import CitySelector from '../components/CitySelector';
 import VenuesGrid from '../components/VenuesGrid';
 import { venuesData } from '../data/venuesData';
+import { generateVenueStructuredData, generateBreadcrumbStructuredData } from '../utils/structuredData';
 
 const Venues = () => {
   const navigate = useNavigate();
@@ -31,8 +33,25 @@ const Venues = () => {
     }, 500);
   };
 
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Venues', path: '/venues' }
+  ];
+
+  const structuredData = [
+    generateBreadcrumbStructuredData(breadcrumbs),
+    ...filteredVenues.slice(0, 5).map(venue => generateVenueStructuredData(venue))
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="Premium Venues - Event Spaces & Cinema Halls | EventWeb"
+        description="Discover and book premium venues for events, private screenings, and special occasions. Browse luxury event spaces, cinema halls, and venues across Mumbai and India."
+        keywords="premium venues, event spaces, cinema halls, venue booking, private screening venues, luxury venues, event halls, Mumbai venues"
+        url={`${window.location.origin}/venues`}
+        structuredData={structuredData}
+      />
       {/* Hero Section */}
       <VenuesHero />
       
