@@ -85,7 +85,7 @@ const PaymentMethods = ({ finalPrice, onCancel }) => {
   const [open, setOpen] = useState('');
   const amount = Number(finalPrice || 0).toFixed(2);
   const upiParams = {
-    pa: 'iamshivam1383@okicici',
+    pa: 'iamshivam1383-2@okicici',
     pn: 'Shivam',
     am: amount,
     cu: 'INR'
