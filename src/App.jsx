@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { EventProvider } from './context/EventContext';
 import { LoadingProvider, useLoading } from './context/LoadingContext';
 import LoadingScreen from './components/LoadingScreen';
@@ -75,6 +75,8 @@ const AppContent = () => {
                 <Contact />
               </Layout>
             } />
+            {/* Catch-all route that redirects to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </EventProvider>
       </div>

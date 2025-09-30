@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CreditCard, QrCode, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw } from 'lucide-react';
 
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [showPaymentError, setShowPaymentError] = useState(false);
   const {
     eventTitle = 'Event',
     subtotal = 0,
@@ -68,20 +69,126 @@ const Payment = () => {
             </div>
             <div className="p-5">
               {/* Payment Method Selector */}
-              <PaymentMethods finalPrice={finalPrice} onCancel={() => navigate(-1)} />
+              <PaymentMethods 
+                finalPrice={finalPrice} 
+                onCancel={() => navigate(-1)}
+                onPaymentError={() => setShowPaymentError(true)}
+              />
             </div>
           </div>
         </motion.div>
       </div>
+
+      {/* Payment Error Modal */}
+      <PaymentErrorModal 
+        isOpen={showPaymentError}
+        onClose={() => setShowPaymentError(false)}
+        onRetry={() => setShowPaymentError(false)}
+      />
     </div>
+  );
+};
+
+// Payment Error Modal Component
+const PaymentErrorModal = ({ isOpen, onClose, onRetry }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+          
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          >
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Payment Failed</h3>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white transition-colors p-1"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <div className="text-gray-300 mb-6">
+                  <p className="mb-3">
+                    We're sorry, but your payment could not be processed at this time.
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Please try using a different payment method or contact your bank if the issue persists.
+                  </p>
+                </div>
+
+                {/* Suggested Actions */}
+                <div className="bg-gray-800/50 rounded-xl p-4 mb-6">
+                  <h4 className="text-sm font-medium text-white mb-3">Try these alternatives:</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                      Switch to UPI/QR code payment
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                      Use a different card or payment method
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                      Check your internet connection
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={onRetry}
+                    className="flex-1 bg-yellow-400 text-black py-3 px-4 rounded-xl font-semibold hover:bg-yellow-300 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Try Again
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="flex-1 border border-gray-700 text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
 export default Payment;
 
 // Collapsible payment methods (Card, UPI/QR)
-import { useState } from 'react';
-const PaymentMethods = ({ finalPrice, onCancel }) => {
+const PaymentMethods = ({ finalPrice, onCancel, onPaymentError }) => {
   const [open, setOpen] = useState('');
   const amount = Number(finalPrice || 0).toFixed(2);
   const upiParams = {
@@ -146,7 +253,12 @@ const PaymentMethods = ({ finalPrice, onCancel }) => {
             <div className="mt-2 space-y-3">
               <button
                 className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
-                onClick={() => alert('Frontend demo only. Integrate payment gateway SDK/server to process payments.')}
+                onClick={() => {
+                  // Simulate payment failure for demo
+                  setTimeout(() => {
+                    onPaymentError();
+                  }, 1000);
+                }}
               >
                 Pay ₹{finalPrice}
               </button>

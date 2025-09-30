@@ -7,7 +7,7 @@ import { useEventContext } from '../context/EventContext';
 // Modern state management with useReducer
 const initialBookingState = {
   ticketCount: 1,
-  seatPreference: '',
+  seatPreference: 'C', // Default to regular fare (C Row)
   seatPremiumSurcharge: 0,
   coupon: {
     code: '',
@@ -28,13 +28,12 @@ const initialBookingState = {
 
 // Seat preference options with pricing
 const SEAT_PREFERENCES = [
-  { id: '', label: 'Select your preference', premium: false, surcharge: 0 },
-  { id: 'A', label: 'A Row (Premium Corner)', premium: true, surcharge: 400 },
-  { id: 'B', label: 'B Row (Premium Corner)', premium: true, surcharge: 400 },
-  { id: 'C', label: 'C Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'C', label: 'C Row (Regular) - Default', premium: false, surcharge: 0 },
   { id: 'D', label: 'D Row (Regular)', premium: false, surcharge: 0 },
   { id: 'E', label: 'E Row (Regular)', premium: false, surcharge: 0 },
   { id: 'F', label: 'F Row (Regular)', premium: false, surcharge: 0 },
+  { id: 'A', label: 'A Row (Premium Corner)', premium: true, surcharge: 400 },
+  { id: 'B', label: 'B Row (Premium Corner)', premium: true, surcharge: 400 },
   { id: 'G', label: 'G Row (Premium Corner)', premium: true, surcharge: 400 },
   { id: 'H', label: 'H Row (Premium Corner)', premium: true, surcharge: 400 },
   { id: 'I', label: 'I Row (VIP Premium)', premium: true, surcharge: 600 },
@@ -294,10 +293,8 @@ const TicketBooking = () => {
       return;
     }
     
-    if (!bookingState.seatPreference) {
-      dispatch({ type: 'SET_VALIDATION_ERROR', field: 'general', message: 'Please select your seat preference.' });
-      return;
-    }
+    // Seat preference validation is no longer needed as we have a default
+    // The default preference is set to regular fare (C Row)
     
     
     
@@ -629,27 +626,23 @@ const TicketBooking = () => {
                     className="w-full bg-gray-800/50 border border-gray-600 text-white px-3 sm:px-4 py-3 rounded-lg hover:border-yellow-400 focus:outline-none focus:border-yellow-400 focus:bg-gray-800 transition-all duration-300 min-h-[44px] text-sm sm:text-base flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      {bookingState.seatPreference ? (
-                        <>
-                          <div className={`w-3 h-3 rounded-full ${
-                            (() => {
-                              const pref = SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference);
-                              if (!pref?.premium) return 'bg-emerald-400';
-                              return pref.surcharge >= 600 ? 'bg-purple-400' : 'bg-amber-400';
-                            })()
-                          }`} />
-                          <span className="text-white">
-                            {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.label}
+                      <>
+                        <div className={`w-3 h-3 rounded-full ${
+                          (() => {
+                            const pref = SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference);
+                            if (!pref?.premium) return 'bg-emerald-400';
+                            return pref.surcharge >= 600 ? 'bg-purple-400' : 'bg-amber-400';
+                          })()
+                        }`} />
+                        <span className="text-white">
+                          {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.label}
+                        </span>
+                        {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.premium && (
+                          <span className="text-amber-400 text-xs bg-amber-400/10 px-2 py-1 rounded">
+                            +₹{SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.surcharge}
                           </span>
-                          {SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.premium && (
-                            <span className="text-amber-400 text-xs bg-amber-400/10 px-2 py-1 rounded">
-                              +₹{SEAT_PREFERENCES.find(p => p.id === bookingState.seatPreference)?.surcharge}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-gray-400">Select your preference</span>
-                      )}
+                        )}
+                      </>
                     </div>
                     <motion.div
                       animate={{ rotate: isDropdownOpen ? 180 : 0 }}
@@ -690,18 +683,14 @@ const TicketBooking = () => {
                           >
                             <div className="flex items-center gap-3">
                               <div className={`w-3 h-3 rounded-full transition-all ${
-                                preference.id === '' 
-                                  ? 'bg-gray-600' 
-                                  : !preference.premium 
-                                    ? 'bg-emerald-400 group-hover:scale-110'
-                                    : preference.surcharge >= 600
-                                      ? 'bg-purple-400 group-hover:scale-110'
-                                      : 'bg-amber-400 group-hover:scale-110'
+                                !preference.premium 
+                                  ? 'bg-emerald-400 group-hover:scale-110'
+                                  : preference.surcharge >= 600
+                                    ? 'bg-purple-400 group-hover:scale-110'
+                                    : 'bg-amber-400 group-hover:scale-110'
                               }`} />
                               <div>
-                                <span className={`text-sm ${
-                                  preference.id === '' ? 'text-gray-400' : 'text-white'
-                                }`}>
+                                <span className="text-sm text-white">
                                   {preference.label}
                                 </span>
                                 {preference.premium && (
