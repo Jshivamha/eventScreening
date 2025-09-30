@@ -311,7 +311,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError }) => {
                 className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
                 onClick={() => { window.location.href = upiLink; }}
               >
-                Pay via UPI App
+                Click to Pay
               </button>
               <button
                 className="w-full border border-gray-700 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors min-h-[44px]"
