@@ -34,7 +34,7 @@ export const movieEventMappings = [
     location: "Private Venue, Noida",
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://enthucutlet.com/wp-content/uploads/2023/12/SSC-1-scaled.jpg",
-    price: "25000",
+    price: "2500",
     capacity: "50 people",
     city: "Delhi NCR",
     movieName: "Interstellar"
@@ -137,11 +137,20 @@ export const generateDynamicEvents = () => {
   const today = new Date();
   const dynamicEvents = [];
   
-  // Generate events for today only
+    // Check if current time is after 8 PM
+  const currentHour = today.getHours();
+  const useTomorrow = currentHour >= 20; // 8 PM or later
+  
+  // Generate events with dynamic date
   for (let i = 0; i < movieEventMappings.length; i++) {
-    const eventDate = new Date(today);  // Always use today's date
+    const eventDate = new Date(today);
     
-    // Format date as today
+    // If it's after 8 PM, show tomorrow's date
+    if (useTomorrow) {
+      eventDate.setDate(eventDate.getDate() + 1);
+    }
+    
+    // Format the date
     const formattedDate = eventDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
