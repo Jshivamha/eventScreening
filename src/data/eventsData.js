@@ -16,7 +16,7 @@ export const eventsData = [
     id: 2,
     title: "Open Air Screening: Inception",
     type: "Open Air",
-    date: "March 18, 2024",
+    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     time: "8:00 PM",
     location: "Lodhi Garden, Delhi",
     description: "Join us for a mind-bending experience with Christopher Nolan's Inception. Bring your blankets and enjoy this cinematic masterpiece under the open sky.",

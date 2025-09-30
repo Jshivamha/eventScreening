@@ -137,35 +137,22 @@ export const generateDynamicEvents = () => {
   const today = new Date();
   const dynamicEvents = [];
   
-  // Generate events for the next 7 days
-  for (let i = 0; i < 7; i++) {
-    const eventDate = new Date(today);
-    eventDate.setDate(today.getDate() + i);
+  // Generate events for today only
+  for (let i = 0; i < movieEventMappings.length; i++) {
+    const eventDate = new Date(today);  // Always use today's date
     
-    // Skip if the event time has already passed today
-    if (i === 0) {
-      const currentTime = new Date();
-      const eventTime = new Date(eventDate);
-      // Assume events are in the evening, so if it's past 9 PM, skip today
-      eventTime.setHours(21, 0, 0, 0);
-      if (currentTime > eventTime) {
-        continue;
-      }
-    }
-    
-    // Cycle through movie mappings based on date
-    const movieIndex = i % movieEventMappings.length;
-    const baseEvent = movieEventMappings[movieIndex];
-    
-    // Format date
+    // Format date as today
     const formattedDate = eventDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
     });
     
+    // Use the current movie mapping
+    const baseEvent = movieEventMappings[i];
+    
     // Update title to include the movie name
-    const updatedTitle = `${baseEvent.type}: ${baseEvent.movieName}`;
+    const updatedTitle = `${baseEvent.title}`;
     
     const dynamicEvent = {
       ...baseEvent,

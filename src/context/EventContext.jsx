@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { eventsData } from '../data/eventsData';
 import { generateDynamicEvents, shouldRefreshEvents } from '../data/dynamicEventsData';
 
-const EventContext = createContext();
+export const EventContext = createContext();
 
 export const useEventContext = () => {
   const context = useContext(EventContext);
