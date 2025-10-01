@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
@@ -371,6 +371,55 @@ export default Payment;
 
 // Collapsible payment methods (Card, UPI/QR)
 const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit }) => {
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes in seconds
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const timerRef = useRef(null);
+  const [open, setOpen] = useState(''); // Track which payment method is open
+  
+  // Format time as MM:SS
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Start/Reset timer when UPI section is opened
+  useEffect(() => {
+    if (open === 'upi') {
+      setTimeLeft(120);
+      setIsTimerActive(true);
+    } else {
+      setIsTimerActive(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [open]);
+
+  // Handle countdown
+  useEffect(() => {
+    if (!isTimerActive) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timerRef.current);
+          setIsTimerActive(false);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [isTimerActive]);
+
   const generateUpiLink = (amount) => {
     const upiParams = {
       pa: 'iamshivam1383-2@okaxis',
@@ -383,7 +432,6 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
 
   const amount = Number(finalPrice || 0).toFixed(2);
   const upiLink = generateUpiLink(amount);
-  const [open, setOpen] = useState('');
   const qrData = encodeURIComponent(upiLink);
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${qrData}`;
 
@@ -487,9 +535,37 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
           className="overflow-hidden border-t border-gray-800"
         >
           <div className="p-4 grid grid-cols-1 gap-4">
-            <div className="flex flex-col items-center justify-center gap-2">
-              <img src={qrSrc} alt="UPI QR" className="w-44 h-44 rounded-lg border border-gray-700 bg-gray-800 p-2" />
-              <p className="text-xs text-gray-500">Scan to pay ₹{amount} to Shivam</p>
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="flex flex-col items-center gap-3">
+                <img 
+                  src={qrSrc} 
+                  alt="UPI QR" 
+                  className={`w-44 h-44 rounded-lg border-2 ${timeLeft > 0 ? 'border-yellow-400/30' : 'border-red-400/30'} bg-gray-800 p-2 transition-colors duration-300`} 
+                />
+                {isTimerActive && (
+                  <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    timeLeft > 30 ? 'bg-yellow-400/10 text-yellow-400' : 'bg-red-500/10 text-red-400'
+                  }`}>
+                    <span className="font-mono">{formatTime(timeLeft)}</span>
+                    {timeLeft <= 10 && (
+                      <span className="ml-1">⏳</span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p className={`text-xs ${timeLeft > 0 ? 'text-gray-400' : 'text-red-400'} text-center`}>
+                {timeLeft > 0 
+                  ? `Scan to pay ₹${amount} to Shivam`
+                  : 'QR Code expired. Please close and reopen UPI payment.'}
+              </p>
+              {timeLeft > 0 && (
+                <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-1000 ease-linear"
+                    style={{ width: `${(timeLeft / 120) * 100}%` }}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mt-2">
