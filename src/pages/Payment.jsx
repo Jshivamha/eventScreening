@@ -3,22 +3,58 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
 
-// Email Form Component
-const EmailForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+// Contact Form Component
+const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    phone: ''
+  });
+  const [error, setError] = useState({ email: '', phone: '' });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (error[name]) {
+      setError(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newError = { email: '', phone: '' };
+    let isValid = true;
+
+    if (!formData.email) {
+      newError.email = 'Please enter your email';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newError.email = 'Please enter a valid email';
+      isValid = false;
+    }
+
+    if (!formData.phone) {
+      newError.phone = 'Please enter your phone number';
+      isValid = false;
+    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+      newError.phone = 'Please enter a valid 10-digit phone number';
+      isValid = false;
+    }
+
+    setError(newError);
+    return isValid;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email) {
-      setError('Please enter your email');
-      return;
+    if (validateForm()) {
+      onSubmit(formData);
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email');
-      return;
-    }
-    onSubmit(email);
   };
 
   return (
@@ -42,7 +78,7 @@ const EmailForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <Mail className="w-5 h-5 text-yellow-400" />
-                  Enter Your Email
+                  Contact Information
                 </h3>
                 <button
                   onClick={onClose}
@@ -56,21 +92,43 @@ const EmailForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (error) setError('');
-                    }}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
                     placeholder="your@email.com"
                     autoComplete="email"
                   />
-                  {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
+                  {error.email && <p className="mt-1 text-sm text-red-400">{error.email}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-400">+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                      placeholder="98765 43210"
+                      maxLength="10"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                    />
+                  </div>
+                  {error.phone && <p className="mt-1 text-sm text-red-400">{error.phone}</p>}
                 </div>
                 
                 <div className="flex gap-3 pt-2">
@@ -113,10 +171,11 @@ const Payment = () => {
     tickets = 1
   } = location.state || {};
 
-  const handleEmailSubmit = (email) => {
-    setUserEmail(email);
+  const handleContactSubmit = (contactData) => {
+    setUserEmail(contactData.email);
+    // Store phone number in state if needed later
     setShowEmailForm(false);
-    // Proceed with payment after email is submitted
+    // Proceed with payment after contact info is submitted
     window.location.href = upiLink;
   };
 
@@ -127,10 +186,10 @@ const Payment = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative">
-      <EmailForm
+      <ContactForm
         isOpen={showEmailForm}
         onClose={() => setShowEmailForm(false)}
-        onSubmit={handleEmailSubmit}
+        onSubmit={handleContactSubmit}
         onCancel={() => setShowEmailForm(false)}
       />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
