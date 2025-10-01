@@ -1,12 +1,108 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw } from 'lucide-react';
+import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
+
+// Email Form Component
+const EmailForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email');
+      return;
+    }
+    onSubmit(email);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            onClick={onClose}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-yellow-400" />
+                  Enter Your Email
+                </h3>
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError('');
+                    }}
+                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                  />
+                  {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-yellow-400 text-black py-3 rounded-xl font-semibold hover:bg-yellow-300 transition-colors"
+                  >
+                    Continue to Payment
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className="flex-1 border border-gray-700 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showPaymentError, setShowPaymentError] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const {
     eventTitle = 'Event',
     subtotal = 0,
@@ -17,8 +113,26 @@ const Payment = () => {
     tickets = 1
   } = location.state || {};
 
+  const handleEmailSubmit = (email) => {
+    setUserEmail(email);
+    setShowEmailForm(false);
+    // Proceed with payment after email is submitted
+    window.location.href = upiLink;
+  };
+
+  const handlePaymentClick = (e) => {
+    e.preventDefault();
+    setShowEmailForm(true);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative">
+      <EmailForm
+        isOpen={showEmailForm}
+        onClose={() => setShowEmailForm(false)}
+        onSubmit={handleEmailSubmit}
+        onCancel={() => setShowEmailForm(false)}
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,6 +187,7 @@ const Payment = () => {
                 finalPrice={finalPrice} 
                 onCancel={() => navigate(-1)}
                 onPaymentError={() => setShowPaymentError(true)}
+                onEmailSubmit={handlePaymentClick}
               />
             </div>
           </div>
@@ -188,7 +303,7 @@ const PaymentErrorModal = ({ isOpen, onClose, onRetry }) => {
 export default Payment;
 
 // Collapsible payment methods (Card, UPI/QR)
-const PaymentMethods = ({ finalPrice, onCancel, onPaymentError }) => {
+const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit }) => {
   const [open, setOpen] = useState('');
   const amount = Number(finalPrice || 0).toFixed(2);
   const upiParams = {
@@ -308,8 +423,9 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError }) => {
 
             <div className="mt-2 space-y-3">
               <button
+                type="button"
                 className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
-                onClick={() => { window.location.href = upiLink; }}
+                onClick={onEmailSubmit}
               >
                 Click to Pay
               </button>
