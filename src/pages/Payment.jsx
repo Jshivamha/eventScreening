@@ -306,7 +306,13 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError }) => {
               <p className="text-xs text-gray-500">Scan to pay ₹{amount} to {upiParams.pn}</p>
             </div>
 
-            <div className="mt-2">
+            <div className="mt-2 space-y-3">
+              <button
+                className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
+                onClick={() => { window.location.href = upiLink; }}
+              >
+                Click to Pay
+              </button>
               <button
                 className="w-full border border-gray-700 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors min-h-[44px]"
                 onClick={onCancel}
