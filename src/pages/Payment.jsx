@@ -373,7 +373,7 @@ export default Payment;
 const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit }) => {
   const generateUpiLink = (amount) => {
     const upiParams = {
-      pa: 'iamshivam1383-2@oksbi',
+      pa: 'iamshivam1383-2@okaxis',
       pn: 'Shivam',
       am: amount,
       cu: 'INR'
@@ -492,14 +492,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
               <p className="text-xs text-gray-500">Scan to pay ₹{amount} to Shivam</p>
             </div>
 
-            <div className="mt-2 space-y-3">
-              <button
-                type="button"
-                className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
-                onClick={(e) => onEmailSubmit(e, upiLink)}
-              >
-                Click to Pay
-              </button>
+            <div className="mt-2">
               <button
                 className="w-full border border-gray-700 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors min-h-[44px]"
                 onClick={onCancel}
