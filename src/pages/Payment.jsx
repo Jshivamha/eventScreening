@@ -161,6 +161,7 @@ const Payment = () => {
   const [showPaymentError, setShowPaymentError] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [paymentLink, setPaymentLink] = useState('');
   const {
     eventTitle = 'Event',
     subtotal = 0,
@@ -176,11 +177,18 @@ const Payment = () => {
     // Store phone number in state if needed later
     setShowEmailForm(false);
     // Proceed with payment after contact info is submitted
-    window.location.href = upiLink;
+    if (paymentLink) {
+      window.location.href = paymentLink;
+    } else {
+      // Fallback in case payment link is not available
+      console.error('Payment link not found');
+      setShowPaymentError(true);
+    }
   };
 
-  const handlePaymentClick = (e) => {
+  const handlePaymentClick = (e, upiLink) => {
     e.preventDefault();
+    setPaymentLink(upiLink);
     setShowEmailForm(true);
   };
 
@@ -246,7 +254,7 @@ const Payment = () => {
                 finalPrice={finalPrice} 
                 onCancel={() => navigate(-1)}
                 onPaymentError={() => setShowPaymentError(true)}
-                onEmailSubmit={handlePaymentClick}
+                onEmailSubmit={(e, upiLink) => handlePaymentClick(e, upiLink)}
               />
             </div>
           </div>
@@ -363,15 +371,19 @@ export default Payment;
 
 // Collapsible payment methods (Card, UPI/QR)
 const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit }) => {
-  const [open, setOpen] = useState('');
-  const amount = Number(finalPrice || 0).toFixed(2);
-  const upiParams = {
-    pa: 'iamshivam1383-2@oksbi',
-    pn: 'Shivam',
-    am: amount,
-    cu: 'INR'
+  const generateUpiLink = (amount) => {
+    const upiParams = {
+      pa: 'iamshivam1383-2@oksbi',
+      pn: 'Shivam',
+      am: amount,
+      cu: 'INR'
+    };
+    return `upi://pay?pa=${encodeURIComponent(upiParams.pa)}&pn=${encodeURIComponent(upiParams.pn)}&am=${encodeURIComponent(upiParams.am)}&cu=${encodeURIComponent(upiParams.cu)}`;
   };
-  const upiLink = `upi://pay?pa=${encodeURIComponent(upiParams.pa)}&pn=${encodeURIComponent(upiParams.pn)}&am=${encodeURIComponent(upiParams.am)}&cu=${encodeURIComponent(upiParams.cu)}`;
+
+  const amount = Number(finalPrice || 0).toFixed(2);
+  const upiLink = generateUpiLink(amount);
+  const [open, setOpen] = useState('');
   const qrData = encodeURIComponent(upiLink);
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${qrData}`;
 
@@ -477,14 +489,14 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col items-center justify-center gap-2">
               <img src={qrSrc} alt="UPI QR" className="w-44 h-44 rounded-lg border border-gray-700 bg-gray-800 p-2" />
-              <p className="text-xs text-gray-500">Scan to pay ₹{amount} to {upiParams.pn}</p>
+              <p className="text-xs text-gray-500">Scan to pay ₹{amount} to Shivam</p>
             </div>
 
             <div className="mt-2 space-y-3">
               <button
                 type="button"
                 className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
-                onClick={onEmailSubmit}
+                onClick={(e) => onEmailSubmit(e, upiLink)}
               >
                 Click to Pay
               </button>
