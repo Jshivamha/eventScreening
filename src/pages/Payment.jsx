@@ -422,12 +422,14 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
 
   const generateUpiLink = (amount) => {
     const upiParams = {
-      pa: 'iamshivam1383-2@okaxis',
-      pn: 'Shivam',
+      pa: '6239095938@jio',
+      pn: 'Sona Studies',
       am: amount,
-      cu: 'INR'
+      cu: 'INR',
+      tn: 'Event Payment',
+      mc: '5499' // MCC for educational services
     };
-    return `upi://pay?pa=${encodeURIComponent(upiParams.pa)}&pn=${encodeURIComponent(upiParams.pn)}&am=${encodeURIComponent(upiParams.am)}&cu=${encodeURIComponent(upiParams.cu)}`;
+    return `upi://pay?pa=${encodeURIComponent(upiParams.pa)}&pn=${encodeURIComponent(upiParams.pn)}&am=${encodeURIComponent(upiParams.am)}&cu=${encodeURIComponent(upiParams.cu)}&tn=${encodeURIComponent(upiParams.tn)}&mc=${encodeURIComponent(upiParams.mc)}`;
   };
 
   const amount = Number(finalPrice || 0).toFixed(2);
@@ -555,9 +557,21 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
               </div>
               <p className={`text-xs ${timeLeft > 0 ? 'text-gray-400' : 'text-red-400'} text-center`}>
                 {timeLeft > 0 
-                  ? `Scan to pay ₹${amount} to Shivam`
+                  ? `Scan to pay ₹${amount} to Sona Studies`
                   : 'QR Code expired. Please close and reopen UPI payment.'}
               </p>
+              {timeLeft > 0 && (
+                <a 
+                  href={upiLink}
+                  className="mt-3 block w-full bg-yellow-400 hover:bg-yellow-300 text-black py-3 px-4 rounded-xl font-semibold text-center transition-colors hover:shadow-lg hover:shadow-yellow-400/20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = upiLink;
+                  }}
+                >
+                  Pay with UPI
+                </a>
+              )}
               {timeLeft > 0 && (
                 <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
                   <div 
