@@ -10,7 +10,7 @@ const Hero = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 overflow-hidden">
+    <section className="relative h-[88vh] w-full bg-gradient-to-br from-gray-900 via-black to-gray-800 overflow-hidden">
       {/* Background Image/Video Placeholder */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10"></div>
       
