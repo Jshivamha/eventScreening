@@ -99,7 +99,7 @@ export const eventsData = [
     location: "Connaught Place, Delhi",
     description: "Join us for an epic Marvel marathon featuring the best of MCU. Food and beverages available throughout the event.",
     image: "https://images.thedirect.com/media/article_full/marvel-posters-ranked.jpg",
-    price: "1299",
+    price: "1",
     capacity: "200 people",
     city: "Delhi NCR"
   }
