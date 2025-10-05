@@ -561,18 +561,6 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
                   : 'QR Code expired. Please close and reopen UPI payment.'}
               </p>
               {timeLeft > 0 && (
-                <a 
-                  href={upiLink}
-                  className="mt-3 block w-full bg-yellow-400 hover:bg-yellow-300 text-black py-3 px-4 rounded-xl font-semibold text-center transition-colors hover:shadow-lg hover:shadow-yellow-400/20"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.location.href = upiLink;
-                  }}
-                >
-                  Click to Pay
-                </a>
-              )}
-              {timeLeft > 0 && (
                 <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-1000 ease-linear"
