@@ -422,8 +422,8 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
 
   const generateUpiLink = (amount) => {
     const upiParams = {
-      pa: '6239095938@jio',
-      pn: 'Sona Studies',
+      pa: 'shinescreening@ybl',
+      pn: 'Shivam',
       am: amount,
       cu: 'INR',
       tn: 'Event Payment',
@@ -557,7 +557,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
               </div>
               <p className={`text-xs ${timeLeft > 0 ? 'text-gray-400' : 'text-red-400'} text-center`}>
                 {timeLeft > 0 
-                  ? `Scan to pay ₹${amount} to Sona Studies`
+                  ? `Scan to pay ₹${amount} to Shine Screening`
                   : 'QR Code expired. Please close and reopen UPI payment.'}
               </p>
               {timeLeft > 0 && (
@@ -569,7 +569,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
                     window.location.href = upiLink;
                   }}
                 >
-                  Pay with UPI
+                  Click to Pay
                 </a>
               )}
               {timeLeft > 0 && (
