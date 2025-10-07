@@ -14,7 +14,7 @@ export const eventsData = [
   },
   {
     id: 2,
-    title: "Open Air Screening: Inception",
+    title: "Open Air Screening: My Fault",
     type: "Open Air",
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     time: "8:00 PM",
@@ -40,7 +40,7 @@ export const eventsData = [
   },
   {
     id: 4,
-    title: "Special Event: Bollywood Night",
+    title: "Special Event: Fifty Shades of Grey",
     type: "Special Event",
     date: "March 25, 2024",
     time: "8:30 PM",
@@ -99,7 +99,7 @@ export const eventsData = [
     location: "Connaught Place, Delhi",
     description: "Join us for an epic Marvel marathon featuring the best of MCU. Food and beverages available throughout the event.",
     image: "https://images.thedirect.com/media/article_full/marvel-posters-ranked.jpg",
-    price: "1",
+    price: "899",
     capacity: "200 people",
     city: "Delhi NCR"
   }
