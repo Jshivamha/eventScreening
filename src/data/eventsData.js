@@ -19,7 +19,7 @@ export const eventsData = [
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     time: "8:00 PM",
     location: "Lodhi Garden, Delhi",
-    description: "Join us for a mind-bending experience with Christopher Nolan's Inception. Bring your blankets and enjoy this cinematic masterpiece under the open sky.",
+    description: "Experience the emotional journey of 'My Fault' in our open-air cinema. Bring your blankets and enjoy this captivating film under the stars.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/AK9pBWeu1Y__DSC6756 (1).jpg",
     price: "599",
     capacity: "200 people",
