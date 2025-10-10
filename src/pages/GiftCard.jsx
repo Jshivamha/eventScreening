@@ -52,7 +52,7 @@ const GIFT_OPTIONS = [
 const FAQS = [
   {
     q: "How do I redeem a gift card?",
-    a: "Gift cards can be redeemed at checkout by entering the unique gift code we email to the recipient. If you face any issue, email contact@sunshincinemaclub.in.",
+    a: "Gift cards can be redeemed at checkout by entering the unique gift code we email to the recipient. If you face any issue, email shinescreening@gmail.com.",
   },
   {
     q: "Do gift cards expire?",
@@ -60,7 +60,7 @@ const FAQS = [
   },
   {
     q: "Can I buy a custom amount?",
-    a: "At the moment we offer fixed-value gift cards (₹1,000 / ₹2,500 / ₹5,000). For corporate or custom requests, contact us at contact@sunshincinemaclub.in.",
+    a: "At the moment we offer fixed-value gift cards (₹1,000 / ₹2,500 / ₹5,000). For corporate or custom requests, contact us at shinescreening@gmail.com.",
   },
 ];
 
@@ -266,7 +266,7 @@ export default function GiftCard() {
               Shop Gift Cards
             </button>
             <button
-              onClick={() => alert("Contact sales at contact@sunshincinemaclub.in")}
+              onClick={() => alert("Contact sales at shinescreening@gmail.com")}
               className="px-4 py-3 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Corporate Enquiries
@@ -341,7 +341,7 @@ export default function GiftCard() {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-semibold text-white">Frequently Asked Questions</h3>
-            <div className="text-gray-400 text-sm">Still have questions? contact@sunshincinemaclub.in</div>
+            <div className="text-gray-400 text-sm">Still have questions? shinescreening@gmail.com</div>
           </div>
 
           <div className="space-y-4">
@@ -362,7 +362,7 @@ export default function GiftCard() {
       <footer className="bg-gray-900 border-t border-gray-800 py-10">
         <div className="max-w-6xl mx-auto px-6 text-center text-gray-400 space-y-3">
           <div className="text-white font-semibold">sunShineScreening</div>
-          <div>For Customer Queries: <a className="text-yellow-400 underline" href="mailto:contact@sunshincinemaclub.in">contact@sunshincinemaclub.in</a></div>
+          <div>For Customer Queries: <a className="text-yellow-400 underline" href="mailto:shinescreening@gmail.com">shinescreening@gmail.com</a></div>
           <div className="text-sm">© 2017-25 sunShineScreening</div>
         </div>
       </footer>

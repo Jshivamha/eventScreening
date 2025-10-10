@@ -55,7 +55,7 @@ const ExperienceSection = () => {
       amenities: ["Premium Sound System", "Gourmet Dining", "City Views", "Climate Control", "Valet Parking"],
       contact: {
         phone: "+91 98765 43210",
-        email: "contact@sunshincinemaclub.in"
+        email: "shinescreening@gmail.com"
       },
       rating: 4.8,
       features: [
@@ -76,7 +76,7 @@ const ExperienceSection = () => {
       pricing: "₹3,200 per person",
       amenities: ["4K Projection", "Luxury Seating", "Fine Dining", "Full Bar", "Concierge Service"],
       contact: {
-        email: "contact@sunshincinemaclub.in"
+        email: "shinescreening@gmail.com"
       },
       rating: 4.9,
       features: [
@@ -98,7 +98,7 @@ const ExperienceSection = () => {
       amenities: ["Beach Setting", "Outdoor Screen", "BBQ Station", "Bonfire Area", "Beach Activities"],
       contact: {
         phone: "+91 76543 21098",
-        email: "contact@sunshincinemaclub.in"
+        email: "shinescreening@gmail.com"
       },
       rating: 4.7,
       features: [

@@ -48,7 +48,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email Us',
-      details: 'contact@sunshincinemaclub.in',
+      details: 'shinescreening@gmail.com',
       subDetails: 'We reply within 24 hours'
     },
     {

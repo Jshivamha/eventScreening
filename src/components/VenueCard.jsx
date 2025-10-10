@@ -221,7 +221,7 @@ const VenueCard = ({ venue }) => {
                 
                 <div className="flex items-center gap-2">
                   <Mail className="w-3 h-3 text-yellow-400" />
-                  <span className="text-xs text-gray-300">contact@sunshincinemaclub.in</span>
+                  <span className="text-xs text-gray-300">shinescreening@gmail.com</span>
                 </div>
               </div>
             </div>

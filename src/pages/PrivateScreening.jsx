@@ -267,7 +267,7 @@ const PrivateScreening = () => {
       <div className="bg-gray-900 text-gray-400 py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <h3 className="text-xl font-bold text-white">sunShineScreening</h3>
-          <p>For Customer Queries: <a href="mailto:contact@sunshincinemaclub.in" className="underline">contact@sunshincinemaclub.in</a></p>
+          <p>For Customer Queries: <a href="mailto:shinescreening@gmail.com" className="underline">shinescreening@gmail.com</a></p>
           <p>Phone: </p>
           <p>Cities: Mumbai · Bangalore · Hyderabad · Delhi NCR · Pune · Chandigarh</p>
         </div>

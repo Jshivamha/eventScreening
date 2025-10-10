@@ -169,7 +169,7 @@ const VenueDetailsModal = ({ venue, isOpen, onClose }) => {
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Mail className="w-4 h-4" />
-                    <span className="text-sm">contact@sunshincinemaclub.in</span>
+                    <span className="text-sm">shinescreening@gmail.com</span>
                   </div>
                 </div>
               </div>

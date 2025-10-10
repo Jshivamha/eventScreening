@@ -927,7 +927,7 @@ const TicketBooking = () => {
         <div className="max-w-6xl mx-auto px-6 text-center text-gray-400 space-y-4">
           <div>
             <h4 className="text-white font-semibold">sunShineScreening</h4>
-            <p>For Customer Queries: <a className="underline text-yellow-400" href="mailto:contact@sunshincinemaclub.in">contact@sunshincinemaclub.in</a></p>
+            <p>For Customer Queries: <a className="underline text-yellow-400" href="mailto:shinescreening@gmail.com">shinescreening@gmail.com</a></p>
             <p>Phone: </p>
             <p>Cities: Mumbai · Bangalore · Hyderabad · Delhi NCR · Pune · Chandigarh</p>
           </div>

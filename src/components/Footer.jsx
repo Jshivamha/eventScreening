@@ -40,7 +40,7 @@ const Footer = () => {
 
   // Handle contact actions
   const handleEmailClick = () => {
-    window.location.href = 'mailto:contact@sunshincinemaclub.in';
+    window.location.href = 'mailto:shinescreening@gmail.com';
   };
 
   const handlePhoneClick = () => {
@@ -181,7 +181,7 @@ const Footer = () => {
                   className="flex items-center text-gray-300 hover:text-yellow-400 transition-colors duration-300 cursor-pointer group"
                 >
                   <Mail size={16} className="mr-3 group-hover:scale-110 transition-transform duration-300" />
-                  <span>contact@sunshincinemaclub.in</span>
+                  <span>shinescreening@gmail.com</span>
                 </button>
                 
               </div>

@@ -30,14 +30,14 @@ const faqData = [
     section: 'PAYMENT RELATED QUERIES',
     faqs: [
       { q: 'Can I cancel my ticket?', a: 'There are no cancellations. You can only reschedule your ticket in case a show is cancelled by SCC for any reason.' },
-      { q: 'Payment has been deducted but I have not received a ticket or confirmation?', a: "Don't worry, Please send a screenshot of the transaction along with your name, registered phone number/registered email to contact@sunshincinemaclub.in, we will resolve it." },
+      { q: 'Payment has been deducted but I have not received a ticket or confirmation?', a: "Don't worry, Please send a screenshot of the transaction along with your name, registered phone number/registered email to shinescreening@gmail.com, we will resolve it." },
     ],
   },
   {
     section: 'MISCELLANEOUS QUESTIONS',
     faqs: [
-      { q: 'Do you give large groups a discount on bookings?', a: 'Yes. We accommodate large group bookings, for a special case email us at contact@sunshincinemaclub.in' },
-      { q: 'Can I hire SCC for a private event?', a: 'Yes, you can book a private event/ corporate event/ marketing collaborative with us. Email us at contact@sunshincinemaclub.in. For marketing collaborations, email : contact@sunshincinemaclub.in' },
+      { q: 'Do you give large groups a discount on bookings?', a: 'Yes. We accommodate large group bookings, for a special case email us at shinescreening@gmail.com' },
+      { q: 'Can I hire SCC for a private event?', a: 'Yes, you can book a private event/ corporate event/ marketing collaborative with us. Email us at shinescreening@gmail.com. For marketing collaborations, email : shinescreening@gmail.com' },
     ],
   },
 ];
@@ -156,7 +156,7 @@ const FAQ = () => {
         <div className="max-w-6xl mx-auto px-6 text-center text-gray-400 space-y-4">
           <div>
             <h4 className="text-white font-semibold">sunShineScreening</h4>
-            <p>For Customer Queries: <a className="underline text-yellow-400" href="mailto:contact@sunshincinemaclub.in">contact@sunshincinemaclub.in</a></p>
+            <p>For Customer Queries: <a className="underline text-yellow-400" href="mailto:shinescreening@gmail.com">shinescreening@gmail.com</a></p>
             <p>Phone: </p>
             <p>Cities: Mumbai · Bangalore · Hyderabad · Delhi NCR · Pune · Chandigarh</p>
           </div>
