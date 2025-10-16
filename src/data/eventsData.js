@@ -4,7 +4,7 @@ export const eventsData = [
     title: "Fifty Shades of Grey",
     type: "Open-Screening",
     date: "March 15, 2024",
-    time: "7:30 PM",
+    time: "4:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience Christopher Nolan's masterpiece under the stars. Bring your car and enjoy this epic superhero film in our premium drive-in setup.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/yvPVsqAWdR_rsz_cafe_cinema_2.jpg",
