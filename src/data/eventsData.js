@@ -1,15 +1,15 @@
 export const eventsData = [
   {
     id: 1,
-    title: "Drive-in Cinema: The Dark Knight",
-    type: "Drive-in",
+    title: "Fifty Shades of Grey",
+    type: "Open-Screening",
     date: "March 15, 2024",
     time: "7:30 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience Christopher Nolan's masterpiece under the stars. Bring your car and enjoy this epic superhero film in our premium drive-in setup.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/yvPVsqAWdR_rsz_cafe_cinema_2.jpg",
     price: "899",
-    capacity: "150 cars",
+    capacity: "150 seats",
     city: "Delhi NCR"
   },
   {
@@ -43,12 +43,12 @@ export const eventsData = [
     title: "Special Event: Fifty Shades of Grey",
     type: "Special Event",
     date: "March 25, 2024",
-    time: "8:30 PM",
+    time: "7:30 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Celebrate Bollywood with a special screening of classic Hindi films. Enjoy traditional snacks and immerse yourself in the magic of Indian cinema.",
     image: "https://sunsetcinemaclub.in/img/admin/venues/wuR5UuK2NU_IMG20250608142231 (1).jpg",
     price: "799",
-    capacity: "300 people",
+    capacity: "200 people",
     city: "Delhi NCR"
   },
   {
