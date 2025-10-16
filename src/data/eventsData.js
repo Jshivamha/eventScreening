@@ -3,7 +3,7 @@ export const eventsData = [
     id: 1,
     title: "Fifty Shades of Grey",
     type: "Open-Screening",
-    date: "October 17, 2025",
+    date: "October 18, 2025",
     time: "7:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience Christopher Nolan's masterpiece under the stars. Bring your car and enjoy this epic superhero film in our premium drive-in setup.",
