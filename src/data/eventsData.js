@@ -99,7 +99,7 @@ export const eventsData = [
     location: "JLN gate no. 14, Delhi",
     description: "Join us for an epic Marvel marathon featuring the best of MCU. Food and beverages available throughout the event.",
     image: "https://images.thedirect.com/media/article_full/marvel-posters-ranked.jpg",
-    price: "1",
+    price: "999",
     capacity: "200 people",
     city: "Delhi NCR"
   }
