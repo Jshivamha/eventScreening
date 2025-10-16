@@ -42,7 +42,7 @@ export const eventsData = [
     id: 4,
     title: "Special Event: Fifty Shades of Grey",
     type: "Special Event",
-    date: "March 25, 2024",
+    date: "March 18, 2024",
     time: "7:30 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Celebrate Bollywood with a special screening of classic Hindi films. Enjoy traditional snacks and immerse yourself in the magic of Indian cinema.",
