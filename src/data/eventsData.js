@@ -94,7 +94,7 @@ export const eventsData = [
     id: 8,
     title: "Special Event: Marvel Marathon",
     type: "Special Event",
-    date: "April 8, 2024",
+    date: "28 October, 2024",
     time: "6:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Join us for an epic Marvel marathon featuring the best of MCU. Food and beverages available throughout the event.",
