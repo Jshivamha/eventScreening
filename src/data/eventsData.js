@@ -17,7 +17,7 @@ export const eventsData = [
     title: "Open Air Screening: My Fault",
     type: "Open Air",
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    time: "11:00 AM",
+    time: "7:00 AM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience the emotional journey of 'My Fault' in our open-air cinema. Bring your blankets and enjoy this captivating film under the stars.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/AK9pBWeu1Y__DSC6756 (1).jpg",
