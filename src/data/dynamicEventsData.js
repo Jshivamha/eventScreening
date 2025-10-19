@@ -34,7 +34,7 @@ export const movieEventMappings = [
     location: "JLN gate 14, Delhi",
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://enthucutlet.com/wp-content/uploads/2023/12/SSC-1-scaled.jpg",
-    price: "2500",
+    price: "599",
     capacity: "50 people",
     city: "Delhi NCR",
     movieName: "Interstellar"
