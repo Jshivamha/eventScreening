@@ -30,7 +30,7 @@ export const eventsData = [
     title: "Private Screening: Interstellar",
     type: "Private Screening",
     date: "March 22, 2024",
-    time: "7:00 PM",
+    time: "9:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://www.flipkart.com/movie-interstellar-hd-wallpaper-background-wall-poster-print-art-paper-13x19-inches/p/itmacd275d54f9b6",
