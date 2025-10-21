@@ -43,7 +43,7 @@ export const eventsData = [
     title: "Special Event: Fifty Shades of Grey",
     type: "Special Event",
     date: "March 18, 2024",
-    time: "7:30 PM",
+    time: "6:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Celebrate Bollywood with a special screening of classic Hindi films. Enjoy traditional snacks and immerse yourself in the magic of Indian cinema.",
     image: "https://sunsetcinemaclub.in/img/admin/venues/wuR5UuK2NU_IMG20250608142231 (1).jpg",
