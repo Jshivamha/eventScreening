@@ -30,7 +30,7 @@ export const eventsData = [
     title: "Private Screening: Dune",
     type: "Private Screening",
     date: "March 22, 2024",
-    time: "9:00 PM",
+    time: "5:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://miro.medium.com/0*NNP_zZwHt9Zu3Bzz",
