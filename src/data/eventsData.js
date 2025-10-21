@@ -27,14 +27,14 @@ export const eventsData = [
   },
   {
     id: 3,
-    title: "Private Screening: Interstellar",
+    title: "Private Screening: Dune",
     type: "Private Screening",
     date: "March 22, 2024",
     time: "9:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
-    image: "https://www.flipkart.com/movie-interstellar-hd-wallpaper-background-wall-poster-print-art-paper-13x19-inches/p/itmacd275d54f9b6",
-    price: "599",
+    image: "https://miro.medium.com/0*NNP_zZwHt9Zu3Bzz",
+    price: "699",
     capacity: "50 people",
     city: "Delhi NCR"
   },
