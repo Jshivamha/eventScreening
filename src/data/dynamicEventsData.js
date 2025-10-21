@@ -35,7 +35,7 @@ export const movieEventMappings = [
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://i.guim.co.uk/img/static/sys-images/Guardian/Pix/pictures/2014/11/5/1415201794019/Matthew-McConaughey-in-In-014.jpg?width=700&quality=85&auto=format&fit=max&s=7ca85dcd8787f3c9ff63fb2213085f40",
     price: "899",
-    capacity: "20 cabins left",
+    capacity: "20 cabins",
     city: "Delhi NCR",
     movieName: "Interstellar"
   },
