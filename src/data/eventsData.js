@@ -35,7 +35,7 @@ export const eventsData = [
     description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://miro.medium.com/0*NNP_zZwHt9Zu3Bzz",
     price: "899",
-    capacity: "12 seats left",
+    capacity: "12 cabins left",
     city: "Delhi NCR"
   },
   {
