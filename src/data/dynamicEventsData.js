@@ -8,7 +8,7 @@ export const movieEventMappings = [
     location: "JLN gate 14, Delhi",
     description: "Ana, a college student, interviews an enigmatic billionaire entrepreneur, Christian, for her campus' periodical. A steamy sadomasochistic affair starts between the two, whose roots lie in his past.",
     image: "https://sunsetcinemaclub.in/img/admin/venues/g6AXE4lF9p__MG_6087 (1).jpg",
-    price: "1499",
+    price: "899",
     capacity: "150 cars",
     city: "Delhi NCR",
     movieName: "Fifty Shades of Grey"
