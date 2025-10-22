@@ -2,16 +2,16 @@
 export const movieEventMappings = [
   {
     id: 1,
-    title: "Drive-in Cinema: The Dark Knight",
+    title: "Drive-in Cinema: Fifty Shades of Grey",
     type: "Drive-in",
     time: "11:00 pm",
     location: "JLN gate 14, Delhi",
-    description: "Experience Christopher Nolan's masterpiece under the stars. Bring your car and enjoy this epic superhero film in our premium drive-in setup.",
+    description: "Ana, a college student, interviews an enigmatic billionaire entrepreneur, Christian, for her campus' periodical. A steamy sadomasochistic affair starts between the two, whose roots lie in his past.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/yvPVsqAWdR_rsz_cafe_cinema_2.jpg",
     price: "899",
     capacity: "150 cars",
     city: "Delhi NCR",
-    movieName: "The Dark Knight"
+    movieName: "Fifty Shades of Grey"
   },
   {
     id: 2,
