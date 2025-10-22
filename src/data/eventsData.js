@@ -53,13 +53,13 @@ export const eventsData = [
   },
   {
     id: 5,
-    title: "Drive-in Cinema: Dune",
+    title: "Drive-in Cinema:The Lost City",
     type: "Drive-in",
     date: "March 28, 2024",
-    time: "3:45 PM",
+    time: "7:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience the epic sci-fi adventure of Dune in our state-of-the-art drive-in setup. Perfect sound and visual experience guaranteed.",
-    image: "https://sunsetcinemaclub.in/img/admin/venues/GBZpBbHppA_IMG20250608123536 (2).jpg",
+    image: "https://sunsetcinemaclub.in/img/admin/venues/g6AXE4lF9p__MG_6087 (1).jpg",
     price: "999",
     capacity: "120 cars",
     city: "Delhi NCR"
