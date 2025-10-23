@@ -557,9 +557,21 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
               </div>
               <p className={`text-xs ${timeLeft > 0 ? 'text-gray-400' : 'text-red-400'} text-center`}>
                 {timeLeft > 0 
-                  ? `Scan to pay ₹${amount} to Shine Screening`
+                  ? `Scan to pay ₹${amount} to Shine Screenings`
                   : 'QR Code expired. Please close and reopen UPI payment.'}
               </p>
+              {timeLeft > 0 && (
+                <a 
+                  href={upiLink}
+                  className="mt-3 block w-full bg-yellow-400 hover:bg-yellow-300 text-black py-3 px-4 rounded-xl font-semibold text-center transition-colors hover:shadow-lg hover:shadow-yellow-400/20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = upiLink;
+                  }}
+                >
+                  Click To Pay
+                </a>
+              )}
               {timeLeft > 0 && (
                 <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
                   <div 
