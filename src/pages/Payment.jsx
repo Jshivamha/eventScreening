@@ -486,18 +486,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
               <input className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400" placeholder="As on card" />
             </div>
 
-            <div className="mt-2 space-y-3">
-              <button
-                className="w-full bg-yellow-400 text-black py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors min-h-[44px]"
-                onClick={() => {
-                  // Simulate payment failure for demo
-                  setTimeout(() => {
-                    onPaymentError();
-                  }, 1000);
-                }}
-              >
-                Pay ₹{finalPrice}
-              </button>
+            <div className="mt-2">
               <button
                 className="w-full border border-gray-700 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors min-h-[44px]"
                 onClick={onCancel}
