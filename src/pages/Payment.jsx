@@ -558,7 +558,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
                     window.location.href = upiLink;
                   }}
                 >
-                  Click To Pay
+                  Scan to pay
                 </a>
               )}
               {timeLeft > 0 && (
