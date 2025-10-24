@@ -422,7 +422,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
 
   const generateUpiLink = (amount) => {
     const upiParams = {
-      pa: 'shinescreening@ibl',
+      pa: 'harshitb554-1@okhdfcbank',
       pn: 'Shine Screenings',
       am: amount,
       cu: 'INR',
