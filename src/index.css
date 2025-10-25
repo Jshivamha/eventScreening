@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal scrolling on mobile */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure all elements stay within viewport */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Optional: Add smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure images and other media are responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
 @layer utilities {
   .line-clamp-2 {
     display: -webkit-box;

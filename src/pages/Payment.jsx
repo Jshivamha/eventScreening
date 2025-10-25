@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
 
 // Contact Form Component
-const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
+const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {  
   const [formData, setFormData] = useState({
     email: '',
     phone: ''
