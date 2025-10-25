@@ -40,7 +40,7 @@ const Hero = () => {
     }
   };
   return (
-    <section className="relative w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center overflow-x-hidden">
+    <section className="relative w-full h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex flex-col items-center overflow-hidden">
       {/* Background Image/Video Placeholder */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10"></div>
       
@@ -64,7 +64,7 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col justify-center" style={{ height: 'calc(100vh - 2rem)' }}>
           <div className="text-center w-full">
             {/* Trusted By */}
             <motion.div 
@@ -93,7 +93,7 @@ const Hero = () => {
               </p>
               
               {/* Value Propositions */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mt-8">
+              {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mt-8">
                 <div className="bg-white/10 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-white/5">
                   <FaTicketAlt className="text-yellow-400 text-2xl mx-auto mb-2" />
                   <p className="text-white text-xs sm:text-sm font-medium">Easy Online Booking</p>
@@ -110,10 +110,10 @@ const Hero = () => {
                   <FaHeadset className="text-yellow-400 text-2xl mx-auto mb-2" />
                   <p className="text-white text-xs sm:text-sm font-medium">24/7 Support</p>
                 </div>
-              </div>
+              </div> */}
             </motion.div>
 
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-4 mb-8">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -133,7 +133,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
-                className="flex flex-col items-center justify-center mt-4 group cursor-pointer"
+                className="w-full flex flex-col items-center justify-center group cursor-pointer mt-8"
                 onClick={scrollToContent}
               >
                 <div className="relative w-8 h-12 rounded-full border-2 border-white/50 flex items-start justify-center p-1.5 mb-2 group-hover:border-yellow-400 transition-all duration-300">
