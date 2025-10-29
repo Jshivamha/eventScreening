@@ -6,6 +6,26 @@ import { Calendar, MapPin, Clock, Users, Ticket } from 'lucide-react';
 import { formatEventDate } from '../data/dynamicEventsData';
 import EventDetailsModal from './EventDetailsModal';
 
+// Helper function to safely format date
+const safeFormatDate = (date) => {
+  try {
+    if (!date) return 'Date not available';
+    // If it's already a string, return as is
+    if (typeof date === 'string') return date;
+    // If it's a Date object, format it
+    if (date instanceof Date) return formatEventDate(date);
+    // If it's a string that can be parsed as a date
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+      return formatEventDate(parsedDate);
+    }
+    return 'Invalid date';
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Date not available';
+  }
+};
+
 const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
   const navigate = useNavigate();
   const { selectEvent } = useEventContext();
@@ -94,7 +114,7 @@ const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Calendar size={14} className="sm:w-4 sm:h-4" />
               <span className="text-xs sm:text-sm font-medium">
-                {event.dayOffset !== undefined ? formatEventDate(event.date) : event.date}
+                {safeFormatDate(event.date)}
               </span>
             </div>
           </div>
@@ -113,11 +133,9 @@ const UniversalEventCard = ({ event, index = 0, variant = 'default' }) => {
 
         {/* Event Details */}
         <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
-          <div className="flex items-center text-gray-400 text-xs sm:text-sm">
-            <Calendar size={14} className="mr-2 text-yellow-400 sm:w-4 sm:h-4" />
-            <span className="truncate">
-              {event.dayOffset !== undefined ? formatEventDate(event.date) : event.date}
-            </span>
+          <div className="flex items-center text-sm text-gray-400 mb-1">
+            <Calendar className="w-4 h-4 mr-2 text-yellow-400" />
+            <span>{safeFormatDate(event.date)}</span>
           </div>
           <div className="flex items-center text-gray-400 text-xs sm:text-sm">
             <Clock size={14} className="mr-2 text-yellow-400 sm:w-4 sm:h-4" />

@@ -12,9 +12,9 @@ export const seoConfig = {
   // Social media handles
   social: {
     twitter: '@eventweb',
-    facebook: 'https://facebook.com/eventweb',
-    instagram: 'https://instagram.com/eventweb',
-    linkedin: 'https://linkedin.com/company/eventweb'
+    facebook: '',
+    instagram: '',
+    linkedin: ''
   },
   
   // Contact information

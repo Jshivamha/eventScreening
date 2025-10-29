@@ -1,30 +1,6 @@
-import { calculateRemainingSeats } from '../utils/seatAvailability';
-
-// Helper function to create event with dynamic seat availability
-const createEvent = (eventData) => {
-  const capacityMatch = eventData.capacity.match(/\d+/);
-  const totalSeats = capacityMatch ? parseInt(capacityMatch[0], 10) : 100;
-  const eventDate = new Date();
-  eventDate.setDate(eventDate.getDate() + Math.floor(Math.random() * 30) + 1); // Random date 1-30 days from now
-  
-  const { remainingSeats, status, isLowAvailability } = 
-    calculateRemainingSeats(eventDate, totalSeats);
-
-  return {
-    ...eventData,
-    date: eventDate,
-    totalSeats,
-    remainingSeats,
-    seatStatus: status,
-    isLowAvailability,
-    displayCapacity: `${remainingSeats} of ${totalSeats} ${eventData.capacity.includes('car') ? 'cars' : 'seats'} left`,
-    availabilityStatus: isLowAvailability ? 'Hurry! Limited availability' : 'Available',
-  };
-};
-
 // Dynamic events data with movie-date mappings
 export const movieEventMappings = [
-  createEvent({
+  {
     id: 1,
     title: "Drive-in Cinema: Fifty Shades of Grey",
     type: "Drive-in",
@@ -36,8 +12,8 @@ export const movieEventMappings = [
     capacity: "120 cars",
     city: "Delhi NCR",
     movieName: "Fifty Shades of Grey"
-  }),
-  createEvent({
+  },
+  {
     id: 2,
     title: "Open Air Screening: My Fault",
     type: "Open Air",
@@ -49,8 +25,8 @@ export const movieEventMappings = [
     capacity: "200 people",
     city: "Delhi NCR",
     movieName: "Inception"
-  }),
-  createEvent({
+  },
+  {
     id: 3,
     title: "Private Screening: Interstellar",
     type: "Private Screening",
@@ -62,8 +38,8 @@ export const movieEventMappings = [
     capacity: "20 cabins",
     city: "Delhi NCR",
     movieName: "Interstellar"
-  }),
-  createEvent({
+  },
+  {
     id: 4,
     title: "Special Event: Bollywood Night",
     type: "Special Event",
@@ -100,9 +76,9 @@ export const movieEventMappings = [
     price: "699",
     capacity: "250 people",
     city: "Delhi NCR",
-    movieName: "Bollywood Classics"
-  }),
-  createEvent({
+    movieName: "Avatar"
+  },
+  {
     id: 7,
     title: "Drive-in Cinema: Top Gun Maverick",
     type: "Drive-in",
