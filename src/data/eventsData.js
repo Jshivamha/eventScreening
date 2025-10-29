@@ -1,5 +1,45 @@
+import { calculateRemainingSeats } from '../utils/seatAvailability';
+
+// Helper function to create event with dynamic seat availability
+const createEvent = (eventData) => {
+  const capacityMatch = eventData.capacity.match(/\d+/);
+  const totalSeats = capacityMatch ? parseInt(capacityMatch[0], 10) : 100;
+  
+  // Parse the event date
+  let eventDate;
+  if (eventData.date instanceof Date) {
+    eventDate = new Date(eventData.date);
+  } else if (typeof eventData.date === 'string') {
+    // Handle string dates in the format "Month Day, Year"
+    eventDate = new Date(eventData.date);
+    if (isNaN(eventDate.getTime())) {
+      // If parsing fails, set to a future date
+      eventDate = new Date();
+      eventDate.setDate(eventDate.getDate() + Math.floor(Math.random() * 30) + 1);
+    }
+  } else {
+    // Default to a random date in the next 30 days
+    eventDate = new Date();
+    eventDate.setDate(eventDate.getDate() + Math.floor(Math.random() * 30) + 1);
+  }
+  
+  const { remainingSeats, status, isLowAvailability } = 
+    calculateRemainingSeats(eventDate, totalSeats);
+
+  return {
+    ...eventData,
+    date: eventDate,
+    totalSeats,
+    remainingSeats,
+    seatStatus: status,
+    isLowAvailability,
+    displayCapacity: `${remainingSeats} of ${totalSeats} ${eventData.capacity.includes('car') ? 'cars' : 'seats'} left`,
+    availabilityStatus: isLowAvailability ? 'Hurry! Limited availability' : 'Available',
+  };
+};
+
 export const eventsData = [
-  {
+  createEvent({
     id: 1,
     title: "Fifty Shades of Grey",
     type: "Open-Screening",
@@ -10,41 +50,44 @@ export const eventsData = [
     image: "https://sunsetcinemaclub.in/img/admin/page/home/yvPVsqAWdR_rsz_cafe_cinema_2.jpg",
     price: "899",
     capacity: "150 seats",
-    city: "Delhi NCR"
+    city: "Delhi NCR",
+    movieName: "Fifty Shades of Grey"
   },
   {
     id: 2,
     title: "Open Air Screening: My Fault",
     type: "Open Air",
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    time: "2:00 AM",
+    date: new Date(), // Today's date
+    time: "8:00 PM",
     location: "JLN gate no. 14, Delhi",
     description: "Experience the emotional journey of 'My Fault' in our open-air cinema. Bring your blankets and enjoy this captivating film under the stars.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/AK9pBWeu1Y__DSC6756 (1).jpg",
     price: "599",
     capacity: "200 people",
-    city: "Delhi NCR"
+    city: "Delhi NCR",
+    movieName: "My Fault"
   },
   {
     id: 3,
     title: "Private Screening: Dune",
     type: "Private Screening",
-    date: "March 22, 2024",
-    time: "5:00 PM",
+    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    time: "7:00 PM",
     location: "JLN gate no. 14, Delhi",
-    description: "Exclusive private screening of Interstellar. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
+    description: "Exclusive private screening of Dune. Perfect for corporate events, birthdays, or special celebrations. Customize your experience with us.",
     image: "https://miro.medium.com/0*NNP_zZwHt9Zu3Bzz",
     price: "899",
     capacity: "12 cabins",
-    city: "Delhi NCR"
+    city: "Delhi NCR",
+    movieName: "Dune"
   },
   {
     id: 4,
-    title: "Special Event: Fifty Shades of Grey",
+    title: "Special Event: Bollywood Night",
     type: "Special Event",
-    date: "October 23, 2025",
-    time: "6:00 PM",
-    location: "JLN gate no. 14, Delhi",
+    date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+    time: "8:00 PM",
+    location: "DLF Avenue Saket, Delhi",
     description: "Celebrate Bollywood with a special screening of classic Hindi films. Enjoy traditional snacks and immerse yourself in the magic of Indian cinema.",
     image: "https://sunsetcinemaclub.in/img/admin/venues/wuR5UuK2NU_IMG20250608142231 (1).jpg",
     price: "799",
@@ -75,8 +118,9 @@ export const eventsData = [
     image: "https://media.assettype.com/deccanherald%2Fimport%2Fsites%2Fdh%2Ffiles%2Farticle_images%2FSCC.jpg?w=undefined",
     price: "699",
     capacity: "250 people",
-    city: "Delhi NCR"
-  },
+    city: "Delhi NCR",
+    movieName: "Bollywood Classics"
+  }),
   {
     id: 7,
     title: "Drive-in Cinema: Top Gun: Maverick",
@@ -104,3 +148,22 @@ export const eventsData = [
     city: "Delhi NCR"
   }
 ];
+
+// Function to get events with updated seat availability
+export const getEventsWithAvailability = () => {
+  return eventsData.map(event => {
+    // If the event already has remainingSeats, just return it
+    if (event.remainingSeats !== undefined) {
+      return event;
+    }
+    
+    // Otherwise, create a new event with seat availability
+    return createEvent({
+      ...event,
+      // Ensure we have a valid date
+      date: event.date || new Date()
+    });
+  });
+};
+
+export default eventsData;
