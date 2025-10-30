@@ -20,10 +20,10 @@ const Footer = () => {
   ];
   
   const socialLinks = [
-    { icon: <Facebook size={20} />, href: 'https://www.facebook.com/clubsunsetcinema/', label: 'Facebook' },
+    { icon: <Facebook size={20} />, href: 'https://www.facebook.com/', label: 'Facebook' },
     
-    { icon: <Instagram size={20} />, href: 'https://www.instagram.com/clubsunsetcinema/?hl=en', label: 'Instagram' },
-    { icon: <Youtube size={20} />, href: 'https://www.youtube.com/channel/UC2ZceV7Jr7LSSRK16DeyV3A', label: 'YouTube' }
+    { icon: <Instagram size={20} />, href: 'https://www.instagram.com/', label: 'Instagram' },
+    { icon: <Youtube size={20} />, href: 'https://www.youtube.com/', label: 'YouTube' }
   ];
 
   // Handle city navigation - redirect to events page with city filter

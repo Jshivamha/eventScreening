@@ -10,17 +10,27 @@ import { eventsData } from '../data/eventsData'; // Import raw data as a fallbac
 import { generateEventStructuredData, generateBreadcrumbStructuredData } from '../utils/structuredData';
 
 const Events = () => {
-  const { events: contextEvents } = useEventContext();
+  const { events: contextEvents, dynamicEvents } = useEventContext();
   const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState(events);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const eventsToProcess = contextEvents.length > 0 ? contextEvents : eventsData;
-    const dynamicEvents = assignDynamicDates(eventsToProcess);
-    setEvents(dynamicEvents);
-    setFilteredEvents(dynamicEvents);
-  }, [contextEvents]);
+    // Combine static and dynamic events, removing duplicates by ID
+    const allEvents = [...contextEvents];
+    const dynamicEventIds = new Set(contextEvents.map(event => event.id));
+    
+    // Add dynamic events that aren't already in the static events
+    dynamicEvents.forEach(event => {
+      if (!dynamicEventIds.has(event.id)) {
+        allEvents.push(event);
+      }
+    });
+    
+    const eventsWithDates = assignDynamicDates(allEvents);
+    setEvents(eventsWithDates);
+    setFilteredEvents(eventsWithDates);
+  }, [contextEvents, dynamicEvents]);
 
   const handleFilterChange = (filters) => {
     setLoading(true);
