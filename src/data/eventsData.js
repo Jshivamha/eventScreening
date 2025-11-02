@@ -63,7 +63,7 @@ export const eventsData = [
     description: "Experience the emotional journey of 'My Fault' in our open-air cinema. Bring your blankets and enjoy this captivating film under the stars.",
     image: "https://sunsetcinemaclub.in/img/admin/page/home/AK9pBWeu1Y__DSC6756 (1).jpg",
     price: "599",
-    capacity: "200 people",
+    capacity: "120 people",
     city: "Delhi NCR",
     movieName: "My Fault"
   },

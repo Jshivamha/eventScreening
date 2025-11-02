@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
+import { CreditCard, QrCode, ChevronDown, X, AlertTriangle, RefreshCw, Mail, CheckCircle2, XCircle } from 'lucide-react';
 
 // Contact Form Component
 const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {  
@@ -53,7 +53,8 @@ const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      onEmailSubmit(formData);
+      handlePayment();
     }
   };
 
@@ -156,12 +157,17 @@ const ContactForm = ({ isOpen, onClose, onSubmit, onCancel }) => {
 };
 
 const Payment = () => {
+  // Declare all hooks at the top
   const location = useLocation();
   const navigate = useNavigate();
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null);
   const [showPaymentError, setShowPaymentError] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [paymentLink, setPaymentLink] = useState('');
+  
+  // Get event details from location state with defaults
   const {
     eventTitle = 'Event',
     subtotal = 0,
@@ -171,6 +177,23 @@ const Payment = () => {
     time,
     tickets = 1
   } = location.state || {};
+
+  // Check for payment status in URL params when component mounts
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const status = params.get('payment_status');
+    
+    if (status === 'success') {
+      setPaymentStatus('success');
+      setShowSuccessPopup(true);
+      // Clean up URL
+      navigate(location.pathname, { replace: true });
+    } else if (status === 'failed') {
+      setPaymentStatus('failed');
+      setShowSuccessPopup(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleContactSubmit = (contactData) => {
     setUserEmail(contactData.email);
@@ -192,6 +215,23 @@ const Payment = () => {
     setShowEmailForm(true);
   };
 
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
+  const handlePaymentError = () => {
+    setShowPaymentError(true);
+  };
+
+  const handleEmailSubmit = (e, upiLink) => {
+    handlePaymentClick(e, upiLink);
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentStatus('success');
+    setShowSuccessPopup(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative">
       <ContactForm
@@ -199,6 +239,7 @@ const Payment = () => {
         onClose={() => setShowEmailForm(false)}
         onSubmit={handleContactSubmit}
         onCancel={() => setShowEmailForm(false)}
+        onPaymentSuccess={handlePaymentSuccess}
       />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <motion.div
@@ -252,9 +293,10 @@ const Payment = () => {
               {/* Payment Method Selector */}
               <PaymentMethods 
                 finalPrice={finalPrice} 
-                onCancel={() => navigate(-1)}
-                onPaymentError={() => setShowPaymentError(true)}
-                onEmailSubmit={(e, upiLink) => handlePaymentClick(e, upiLink)}
+                onCancel={handleCancel}
+                onPaymentError={handlePaymentError}
+                onEmailSubmit={handleEmailSubmit}
+                onPaymentSuccess={handlePaymentSuccess}
               />
             </div>
           </div>
@@ -370,7 +412,9 @@ const PaymentErrorModal = ({ isOpen, onClose, onRetry }) => {
 export default Payment;
 
 // Collapsible payment methods (Card, UPI/QR)
-const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit }) => {
+const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit, onPaymentSuccess }) => {
+  const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null); // 'success', 'failed', or null
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes in seconds
   const [isTimerActive, setIsTimerActive] = useState(false);
   const timerRef = useRef(null);
@@ -422,7 +466,7 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
 
   const generateUpiLink = (amount) => {
     const upiParams = {
-      pa: 'shinescreening@ybl',
+      pa: 'shinescreenings2025@ibl',
       pn: 'Shine Screenings',
       am: amount,
       cu: 'INR',
@@ -430,6 +474,31 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
       mc: '5499' // MCC for educational services
     };
     return `upi://pay?pa=${encodeURIComponent(upiParams.pa)}&pn=${encodeURIComponent(upiParams.pn)}&am=${encodeURIComponent(upiParams.am)}&cu=${encodeURIComponent(upiParams.cu)}&tn=${encodeURIComponent(upiParams.tn)}&mc=${encodeURIComponent(upiParams.mc)}`;
+  };
+
+  const handlePayment = () => {
+    // Show loading state
+    setPaymentStatus('processing');
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      // In a real app, you would make an API call to your payment processor here
+      // and handle the response accordingly
+      const paymentSuccess = Math.random() > 0.1; // 90% success rate for demo
+      
+      if (paymentSuccess) {
+        setPaymentStatus('success');
+        // Call the success handler after a short delay
+        setTimeout(() => {
+          if (onPaymentSuccess) onPaymentSuccess();
+          // Close the payment confirmation after success
+          setShowPaymentConfirmation(false);
+        }, 1000);
+      } else {
+        setPaymentStatus('failed');
+        if (onPaymentError) onPaymentError('Payment failed. Please try again.');
+      }
+    }, 2000); // 2 second delay to simulate network request
   };
 
   const amount = Number(finalPrice || 0).toFixed(2);
@@ -553,9 +622,10 @@ const PaymentMethods = ({ finalPrice, onCancel, onPaymentError, onEmailSubmit })
                 <a 
                   href={upiLink}
                   className="mt-3 block w-full bg-yellow-400 hover:bg-yellow-300 text-black py-3 px-4 rounded-xl font-semibold text-center transition-colors hover:shadow-lg hover:shadow-yellow-400/20"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    window.location.href = upiLink;
+                    // Show payment confirmation dialog
+                    setShowPaymentConfirmation(true);
                   }}
                 >
                   Scan to pay
