@@ -1,28 +1,46 @@
 /**
  * Calculates remaining seats based on event date and total capacity
- * @param {Date} eventDate - The date of the event
+ * @param {Date|string} eventDate - The date of the event
  * @param {number} totalSeats - Maximum number of seats available
  * @returns {Object} - Object containing remaining seats and a status message
  */
 export const calculateRemainingSeats = (eventDate, totalSeats) => {
+  // Ensure eventDate is a Date object
+  const eventDateTime = new Date(eventDate);
   const now = new Date();
-  const timeDiff = eventDate - now;
-  const daysUntilEvent = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  
+  // Calculate time differences
+  const timeDiffMs = eventDateTime - now;
+  const daysUntilEvent = Math.ceil(timeDiffMs / (1000 * 60 * 60 * 24));
+  const hoursUntilEvent = Math.ceil(timeDiffMs / (1000 * 60 * 60));
   
   // If event is in the past, return 0 seats
-  if (daysUntilEvent < 0) {
+  if (timeDiffMs < 0) {
     return {
       remainingSeats: 0,
       status: 'Event has passed',
-      isLowAvailability: true
+      isLowAvailability: true,
+      isSuperLowAvailability: true
     };
   }
 
-  // Calculate percentage of seats remaining based on days until event
+  // Calculate base percentage of seats remaining based on days until event
   let availablePercentage;
+  let isToday = daysUntilEvent === 0;
+  let isWithin4Hours = hoursUntilEvent <= 4;
+  let isSameDay = isToday || (daysUntilEvent === 1 && hoursUntilEvent <= 24);
   
-  if (daysUntilEvent >= 30) {
-    // More than 30 days: 100-80% available
+  if (isWithin4Hours) {
+    // Within 4 hours: 1-3 seats left
+    availablePercentage = Math.max(0.5, Math.random() * 1.5); // 0.5% - 1.5% of total seats
+  } else if (isToday) {
+    // Today but >4 hours away: 3-10% available
+    availablePercentage = 3 + Math.random() * 7; // 3-10%
+  } else if (daysUntilEvent === 1) {
+    // Tomorrow: 10-20% available
+    availablePercentage = 10 + Math.random() * 11; // 10-20%
+  } else if (daysUntilEvent >= 30) {
+    // More than 30 days: 80-100% available
     availablePercentage = 80 + Math.floor(Math.random() * 21); // 80-100%
   } else if (daysUntilEvent >= 14) {
     // 14-29 days: 60-80% available
@@ -33,19 +51,33 @@ export const calculateRemainingSeats = (eventDate, totalSeats) => {
   } else if (daysUntilEvent >= 3) {
     // 3-6 days: 10-30% available
     availablePercentage = 10 + Math.floor(Math.random() * 21); // 10-30%
-  } else if (daysUntilEvent >= 1) {
-    // 1-2 days: 5-15% available
-    availablePercentage = 5 + Math.floor(Math.random() * 11); // 5-15%
   } else {
-    // Same day: 0-5% available
-    availablePercentage = Math.floor(Math.random() * 6); // 0-5%
+    // 2 days: 5-15% available
+    availablePercentage = 5 + Math.floor(Math.random() * 11); // 5-15%
   }
 
-  const remainingSeats = Math.max(1, Math.floor((totalSeats * availablePercentage) / 100));
+  // Calculate remaining seats with minimum of 1 seat if not sold out
+  let remainingSeats = Math.max(1, Math.floor((totalSeats * availablePercentage) / 100));
   
-  // Determine status message
+  // For events within 4 hours, ensure very limited seats (1-3)
+  if (isWithin4Hours) {
+    remainingSeats = Math.min(3, Math.max(1, remainingSeats));
+  }
+  // For today's events, cap at 10 seats
+  else if (isToday) {
+    remainingSeats = Math.min(10, remainingSeats);
+  }
+  
+  // Determine status message and availability flags
   let status;
-  if (availablePercentage >= 80) {
+  let isLowAvailability = availablePercentage < 20 || isToday;
+  let isSuperLowAvailability = isWithin4Hours || availablePercentage < 5;
+  
+  if (isWithin4Hours) {
+    status = remainingSeats === 1 ? 'Last seat left!' : `Only ${remainingSeats} seats left!`;
+  } else if (isToday) {
+    status = remainingSeats <= 3 ? 'Last few seats!' : `Only ${remainingSeats} seats left!`;
+  } else if (availablePercentage >= 80) {
     status = 'Plenty of seats available';
   } else if (availablePercentage >= 50) {
     status = 'Seats filling up';
@@ -60,7 +92,9 @@ export const calculateRemainingSeats = (eventDate, totalSeats) => {
   return {
     remainingSeats,
     status,
-    isLowAvailability: availablePercentage < 20
+    isLowAvailability,
+    isSuperLowAvailability,
+    isLastChance: isWithin4Hours && remainingSeats < 5
   };
 };
 
